@@ -3,11 +3,6 @@ import pandas as pd
 import os
 import sys
 
-def parse_json_2(json_filename):
-
-    with open(json_filename, 'rb') as input_file:
-        objects = ijson.items(input_file)
-        print(objects)
 
 def create_empty_dict(dict_keys):
     dict = {}
