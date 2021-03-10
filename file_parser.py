@@ -24,7 +24,6 @@ def get_all_keys(json_filename):
 
                 if key not in all_keys:
                     all_keys.append(key)
-                    print(key)
     return all_keys
 
 
@@ -110,5 +109,4 @@ def parse_json_to_csv(json_file):
 
 if __name__ == '__main__':
     json_file = sys.argv[1]
-    # json_file = 'mask_data_wide_complete.json'
     parse_json_to_csv(json_file)
