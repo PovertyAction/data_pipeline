@@ -3,75 +3,111 @@ import pandas as pd
 import os
 import sys
 import requests
+import ntpath
 
 import surveycto_credentials
 import box_manager
 
 def download_file_from_surveycto(file_url, file_path):
 
-    #Send request
-    headers = {'X-OpenRosa-Version': '1.0'}
-    auth_basic = requests.auth.HTTPBasicAuth(
-     username=surveycto_credentials.get_username(), password=surveycto_credentials.get_password())
+    try:
+        #Send request
+        headers = {'X-OpenRosa-Version': '1.0'}
+        auth_basic = requests.auth.HTTPBasicAuth(
+         username=surveycto_credentials.get_username(), password=surveycto_credentials.get_password())
 
-    response = requests.get(file_url,
-                         headers= headers,
-                         auth= auth_basic)
+        response = requests.get(file_url,
+                             headers= headers,
+                             auth= auth_basic)
 
-    #Save response content in file
-    data = response.content
+        #Save response content in file
+        data = response.content
 
-    f = open(file_path, 'wb')
-    f.write(data)
-    f.close()
+        f = open(file_path, 'wb')
+        f.write(data)
+        f.close()
+        return True
+
+    except Exception as e:
+        print("An exception occurred")
+        print(e)
+        return False
+
+def safe_delete(file_path):
+    try:
+        os.remove(file_path)
+        return True
+    except Excepion as e:
+        print("An exception occurred")
+        print(e)
+        return False
+
 
 def download_attachments_and_upload_to_dropbox(json_filename, attachment_columns, box_folder_id):
 
     files_in_box = box_manager.get_list_files(box_folder_id)
+    if files_in_box is False:
+        print(f'Could not read files from folder {box_folder_id}')
+    else:
+        print(f'Files found in box folder {box_folder_id}: {files_in_box}')
 
     with open(json_filename, 'rb') as input_file:
         # load json iteratively
         parser = ijson.parse(input_file)
-
-        rows_counter=0
-
         for prefix, event, value in parser:
             #Check if prefix we are reading is a json key
+            #We know json keys come in the shape "prefix.key"
             if len(prefix.split('.'))>1:
                 key = prefix.split('.')[1]
 
-                #Check if key is associated to one with urls do download
-                if key in attachment_columns:
+                #Check if key is associated to one of columns with urls to download
+                if key in attachment_columns and value !='':
 
                     #Get file_name
-                    file_name = value.split('/')[-1]
+                    file_name = ntpath.basename(value)
+                    print('---')
+                    print(f'Working on {file_name}')
 
                     #Check if file already exist in box. If it does, move to next one.
                     if file_name in files_in_box:
+                        print(f'{file_name} already in box, skipping')
                         continue
 
-                    #If not, download it, upload it to box and delete it
+                    #Else, proceed to download to local, upload to Box, delete from local
 
-                    file_path = 'attachments/'+file_name
+                    #Download file to local if it doesnt exist already
+                    file_path = os.path.join('attachments',file_name)
 
-                    #Download file if it doesnt exist already
                     if os.path.isfile(file_path):
                         print(f'{file_path} already downloaded')
                     else:
-                        download_file_from_surveycto(file_url=value, file_path=file_path)
-                        print(f'{file_path} succesfully downloaded')
+                        download_status = download_file_from_surveycto(file_url=value, file_path=file_path)
+                        if download_status:
+                            print(f'{file_path} succesfully downloaded to local')
+                        else:
+                            print(f'Error downloading {file_path} from SurveyCTO. Moving to next one')
+                            continue
 
                     #Upload file to box
-                    box_manager.upload_file(box_folder_id, file_path)
+                    upload_status = box_manager.upload_file(box_folder_id, file_path)
+                    if upload_status:
+                        print(f'{file_path} succesfully uploaded to Box')
+                    else:
+                        print(f'Error uploading {file_path} to Box. Moving to next one')
+                        continue
 
                     #Delete file from local
-                    os.remove(file_path)
-
+                    delete_status = safe_delete(file_path)
+                    if delete_status:
+                        print(f'{file_path} deleted from local')
+                    else:
+                        print(f'Error deleting {file_path}. Moving to next one')
+                        continue
 
 
 if __name__ == '__main__':
     # json_file = sys.argv[1]
     json_file = 'mask_data_wide_complete.json'
     attachment_columns = ['text_audit', 'audio_audit']
-    box_folder_id = ''
+    box_folder_id = '133150240980'
     download_attachments_and_upload_to_dropbox(json_file, attachment_columns, box_folder_id)
