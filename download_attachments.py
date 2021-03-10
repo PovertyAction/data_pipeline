@@ -6,7 +6,7 @@ import requests
 import ntpath
 
 import surveycto_credentials
-import box_manager
+#import box_manager
 
 def download_file_from_surveycto(file_url, file_path):
 
@@ -58,7 +58,7 @@ def download_attachments_and_upload_to_box_using_boxcryptor(json_file, attachmen
     else:
         print(f'Files found in box folder {box_folder_id}: {files_in_box}')
 
-    with open(json_filename, 'rb') as input_file:
+    with open(json_file, 'rb') as input_file:
         # load json iteratively
         parser = ijson.parse(input_file)
         for prefix, event, value in parser:
@@ -160,10 +160,10 @@ def download_attachments_and_upload_to_box_using_box_api(json_filename, attachme
 
 
 if __name__ == '__main__':
-    # json_file = sys.argv[1]
-    json_file = 'mask_data_wide_complete.json'
+    #json_file = sys.argv[1]
+    json_file = 'X:\\Box\\Mask_data\\bdmaskrct-maskrct_phone_followup-1615320826.json'
     attachment_columns = ['text_audit', 'audio_audit']
     box_folder_id = '133150240980'
     # download_attachments_and_upload_to_box_using_box_api(json_file, attachment_columns, box_folder_id)
-
+    boxcryptor_folder_path = 'X:\\Box\\Mask_data\\media'
     download_attachments_and_upload_to_box_using_boxcryptor(json_file, attachment_columns, boxcryptor_folder_path)
