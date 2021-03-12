@@ -45,9 +45,8 @@ def add_rows_to_csv(rows, csv_file, sorted_columns, include_header):
 def parse_json_to_csv_with_keys(json_filename, json_keys):
 
     df = pd.DataFrame()
-
-    OUTPUT_FILE = json_filename.split('.')[0]+'.csv'
     #If output file exists, delete it
+    OUTPUT_FILE = os.path.basename(json_filename).split('.')[0]+'.csv'
     if os.path.exists(OUTPUT_FILE):
         print(f'Removing old version of {OUTPUT_FILE}')
         os.remove(OUTPUT_FILE)
@@ -94,13 +93,15 @@ def parse_json_to_csv_with_keys(json_filename, json_keys):
                 row[key]=value
 
         #Once finished, there might still be rows in temp_list_rows that we need to add to the .csv
-        add_rows_to_csv(rows = temp_list_rows,
-                        csv_file = OUTPUT_FILE,
-                        sorted_columns = json_keys,
-                        include_header = False)
+        if len(temp_list_rows)>0:
+            add_rows_to_csv(rows = temp_list_rows,
+                            csv_file = OUTPUT_FILE,
+                            sorted_columns = json_keys,
+                            include_header = False)
 
-        print(f'Total rows appended: {rows_counter}')
-        print('%%%%%%%%%%')
+            print(f'Total rows appended: {rows_counter}')
+            print('%%%%%%%%%%')
+        print(f'OUTPUT_FILE {OUTPUT_FILE}')
 
 def parse_json_to_csv(json_file):
     json_keys = get_all_keys(json_file)

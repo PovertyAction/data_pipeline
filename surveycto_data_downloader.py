@@ -90,7 +90,7 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
 
                     download_status = download_file_from_surveycto(file_url=value, file_path_where_save=file_path, username=username, password=password)
                     if download_status:
-                        print(f'{file_path} succesfully downloaded to boxcryptor folder')
+                        print(f'{file_path} succesfully downloaded')
                     else:
                         print(f'Error downloading {file_path} from SurveyCTO. Moving to next one')
                         continue
@@ -99,31 +99,19 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
 #python surveycto_data_downloader.py '1615378426' 'bdmaskrct' 'maskrct_phone_followup' $env:SURVEYCTO_USERNAME $env:SURVEYCTO_PASSWORD 'X:\\Box Sync\\MASK Test folder' 'X:\\Box Sync\\MASK Test folder\\media'
 if __name__ == '__main__':
 
-    start_day_timespam = sys.argv[1]
-    server_name = sys.argv[2]
-    form_id = sys.argv[3]
-    username=sys.argv[4]
-    password=sys.argv[5]
-    survey_entries_path_destination=sys.argv[6]
-    media_path_destination=sys.argv[7]
+    survey_entries_file_name = sys.argv[1]
+    media_path_destination = sys.argv[2]
+    username = sys.argv[3]
+    password=sys.argv[4]
 
     attachment_columns = ['text_audit', 'audio_audit']
 
-    survey_entries_file_name = download_survey_entries(
-        start_day_timespam=start_day_timespam,
-        server_name=server_name,
-        form_id=form_id,
+    download_attachments(
+        json_file = survey_entries_file_name,
+        attachment_columns = attachment_columns,
+        dir_path_where_save= media_path_destination,
         username=username,
-        password=password,
-        dir_where_to_save=survey_entries_path_destination
-        )
-
-    # download_attachments(
-    #     json_file = survey_entries_file_name,
-    #     attachment_columns = attachment_columns,
-    #     dir_path_where_save= media_path_destination,
-    #     username=username,
-    #     password=password)
+        password=password)
 
 
 

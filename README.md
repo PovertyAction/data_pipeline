@@ -17,5 +17,10 @@ python data_processing_pipeline.py '1615378426' 'bdmaskrct' 'maskrct_phone_follo
 to:
 
 1. Download survey data in json format
+
+```
+curl -u "username:password" -o ~/mask_data.json https://bdmaskrct.surveycto.com/api/v2/forms/data/wide/json/maskrct_phone_followup?date=0
+```
+
 2. Transform data to .csv
 3. Download attachments
