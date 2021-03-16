@@ -42,11 +42,11 @@ def add_rows_to_csv(rows, csv_file, sorted_columns, include_header):
 
 
 
-def parse_json_to_csv_with_keys(json_filename, json_keys):
+def parse_json_to_csv_with_keys(json_filename, json_keys, dir_path):
 
     df = pd.DataFrame()
     #If output file exists, delete it
-    OUTPUT_FILE = os.path.basename(json_filename).split('.')[0]+'.csv'
+    OUTPUT_FILE = os.path.join(dir_path, os.path.basename(json_filename).split('.')[0]+'.csv')
     if os.path.exists(OUTPUT_FILE):
         print(f'Removing old version of {OUTPUT_FILE}')
         os.remove(OUTPUT_FILE)
@@ -61,6 +61,7 @@ def parse_json_to_csv_with_keys(json_filename, json_keys):
         EMPTY_ROW = create_empty_dict(json_keys)
 
         temp_list_rows = []
+        n_rows_to_append_at_a_time = 1000
 
         for prefix, event, value in parser:
             #Check if prefix we are reading is a json key
@@ -73,7 +74,6 @@ def parse_json_to_csv_with_keys(json_filename, json_keys):
                     rows_counter +=1
                     row = create_empty_dict(json_keys)
 
-                    n_rows_to_append_at_a_time = 1000
                     #Every 1000 rows, we will clear the temp_list_rows and append to the csv
                     if rows_counter != 0 and rows_counter % n_rows_to_append_at_a_time == 0:
 
@@ -97,20 +97,23 @@ def parse_json_to_csv_with_keys(json_filename, json_keys):
             add_rows_to_csv(rows = temp_list_rows,
                             csv_file = OUTPUT_FILE,
                             sorted_columns = json_keys,
-                            include_header = False)
+                            include_header = rows_counter < n_rows_to_append_at_a_time)
 
             print(f'Total rows appended: {rows_counter}')
             print('%%%%%%%%%%')
         print(f'OUTPUT_FILE {OUTPUT_FILE}')
 
-def parse_json_to_csv(json_file):
+def parse_json_to_csv(json_file, dir_path):
     json_keys = get_all_keys(json_file)
     print(f'Got json_keys, its {len(json_keys)} of them!')
-    parse_json_to_csv_with_keys(json_file, json_keys)
+    parse_json_to_csv_with_keys(json_file, json_keys, dir_path)
 
 if __name__ == '__main__':
     json_file = sys.argv[1]
-    if os.path.exists(json_file):
-        parse_json_to_csv(json_file)
-    else:
+    dir_path = sys.argv[2]
+    if not os.path.exists(json_file):
         print(f'{json_file} does not exist')
+    elif not os.path.isdir(dir_path):
+        print(f'{dir_path} does not exist')
+    else:
+        parse_json_to_csv(json_file, dir_path)
