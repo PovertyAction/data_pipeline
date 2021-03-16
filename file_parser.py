@@ -110,4 +110,7 @@ def parse_json_to_csv(json_file):
 
 if __name__ == '__main__':
     json_file = sys.argv[1]
-    parse_json_to_csv(json_file)
+    if os.path.exists(json_file):
+        parse_json_to_csv(json_file)
+    else:
+        print(f'{json_file} does not exist')
