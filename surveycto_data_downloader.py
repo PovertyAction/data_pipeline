@@ -80,7 +80,7 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
 
                     #Check if file already exist in dir_path_where_save. If it does, move to next one.
                     if file_name in files_in_dir:
-                        print(f'{file_name} already in {files_in_dir}, skipping')
+                        #print(f'{file_name} already in {files_in_dir}, skipping')
                         continue
 
                     #Else, proceed to download
@@ -133,8 +133,8 @@ def download_attachments_and_upload_to_box_using_box_api(json_filename, attachme
     files_in_box = box_manager.get_list_files(box_folder_id)
     if files_in_box is False:
         print(f'Could not read files from folder {box_folder_id}')
-    else:
-        print(f'Files found in box folder {box_folder_id}: {files_in_box}')
+    #else:
+    #    print(f'Files found in box folder {box_folder_id}: {files_in_box}')
 
     with open(json_filename, 'rb') as input_file:
         # load json iteratively

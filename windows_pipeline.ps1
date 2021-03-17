@@ -1,5 +1,5 @@
 #How to run:
-#.\windows_pipeline.ps1 -servername bdmaskrct -form_id maskrct_phone_followup -start_timestamp 1615706669 -username mali@poverty-action.org -password GRDSgrds! -dir_path "X:\Box\Mask_data"
+#.\windows_pipeline.ps1 -servername bdmaskrct -form_id maskrct_phone_followup -start_timestamp 0 -username mali@poverty-action.org -password mehrabs_password -dir_path "X:\Box\Mask_data"
 
 #Get user parameters
 param ($servername, $form_id, $start_timestamp, $username, $password, $dir_path)
@@ -22,5 +22,7 @@ python file_parser.py ${local_file_path} ${dir_path}
 #3.Download attachments
 $media_path="${dir_path}\media"
 python surveycto_data_downloader.py ${local_file_path} ${media_path} ${username} ${password}
+#Error sometimes showing up: OSError: [WinError 1006] The volume for a file has been externally altered so that the opened file is no longer valid: 'X:\\Box\\Mask_data\\media'
+
 
 #4. Delete .json file from local
