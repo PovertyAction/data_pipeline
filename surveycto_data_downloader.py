@@ -8,7 +8,9 @@ import time
 
 def get_list_files(dir_path):
     if os.path.isdir(dir_path):
+        print('a')
         only_files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+        print('b')
         return only_files
     else:
         print(f'{dir_path} is not a directory')
@@ -60,7 +62,7 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
         print(f'Could not read files from folder {dir_path_where_save}')
     else:
         print(f'Files found in folder {dir_path_where_save}: {files_in_dir}')
-
+    print('Opening json file')
     with open(json_file, 'rb') as input_file:
         # load json iteratively
         parser = ijson.parse(input_file)
@@ -69,6 +71,10 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
             #We know json keys come in the shape "prefix.key"
             if len(prefix.split('.'))>1:
                 key = prefix.split('.')[1]
+
+                #Print submission date for refference
+                if key == 'SubmissionDate':
+                    print(value)
 
                 #Check if key is associated to one of columns with urls to download
                 if key in attachment_columns and value !='':
@@ -105,7 +111,7 @@ if __name__ == '__main__':
     password=sys.argv[4]
 
     attachment_columns = ['text_audit', 'audio_audit']
-
+    print('Lets go!')
     download_attachments(
         json_file = survey_entries_file_name,
         attachment_columns = attachment_columns,
