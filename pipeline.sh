@@ -26,7 +26,7 @@ tmux new -s data_download
 '''
 
 #Activate venv
-. ./venv/bin/activate
+#. ./venv/bin/activate
 
 #Get user parameters
 SERVER="$1"
@@ -54,11 +54,8 @@ echo ${JSON_FILE_PATH}
 echo 'Fist 100 chars:'
 head -c 100 ${JSON_FILE_PATH}
 
-#Transform to .csv
-python file_parser.py ${JSON_FILE_PATH} ${OUTPUTS_FOLDER}
+#2.Transform to .csv
+python3 file_parser.py ${FILE_PATH} ${DIR_PATH}
 
-
-#Download attachments
-MEDIA_FOLDER="${OUTPUTS_FOLDER}/media"
-mkdir ${MEDIA_FOLDER}
-python surveycto_data_downloader.py ${JSON_FILE_PATH} ${MEDIA_FOLDER} ${USERNAME} ${PASSWORD} ${COLUMNS_WITH_ATTACHMENTS}
+#3.Download attachments
+python3 surveycto_data_downloader.py ${FILE_PATH} './media' ${USERNAME} ${PASSWORD}
