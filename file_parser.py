@@ -2,30 +2,13 @@ import ijson
 import pandas as pd
 import os
 import sys
-
+from json_file_reader import get_json_keys
 
 def create_empty_dict(dict_keys):
     dict = {}
     for key in dict_keys:
         dict[key] = ""
     return dict
-
-def get_all_keys(json_filename):
-
-    all_keys = []
-
-    with open(json_filename, 'rb') as input_file:
-        # load json iteratively
-        parser = ijson.parse(input_file)
-        for prefix, event, value in parser:
-            #Check if prefix we are reading is a json key
-            if len(prefix.split('.'))>1:
-                key = prefix.split('.')[1]
-
-                if key not in all_keys:
-                    all_keys.append(key)
-    return all_keys
-
 
 def add_rows_to_csv(rows, csv_file, sorted_columns, include_header):
 
@@ -104,7 +87,7 @@ def parse_json_to_csv_with_keys(json_filename, json_keys, dir_path):
         print(f'OUTPUT_FILE {OUTPUT_FILE}')
 
 def parse_json_to_csv(json_file, dir_path):
-    json_keys = get_all_keys(json_file)
+    json_keys = get_json_keys(json_file)
     print(f'Got json_keys, its {len(json_keys)} of them!')
     parse_json_to_csv_with_keys(json_file, json_keys, dir_path)
 

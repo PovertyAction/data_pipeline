@@ -73,8 +73,8 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
                 key = prefix.split('.')[1]
 
                 #Print submission date for refference
-                if key == 'SubmissionDate':
-                    print(value)
+                #if key == 'SubmissionDate':
+                #    print(value)
 
                 #Check if key is associated to one of columns with urls to download
                 if key in attachment_columns and value !='':
@@ -102,7 +102,7 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
                         continue
 
 
-#python surveycto_data_downloader.py '1615378426' 'bdmaskrct' 'maskrct_phone_followup' $env:SURVEYCTO_USERNAME $env:SURVEYCTO_PASSWORD 'X:\\Box Sync\\MASK Test folder' 'X:\\Box Sync\\MASK Test folder\\media'
+
 if __name__ == '__main__':
 
     survey_entries_file_name = sys.argv[1]
@@ -110,8 +110,8 @@ if __name__ == '__main__':
     username = sys.argv[3]
     password=sys.argv[4]
 
-    attachment_columns = ['text_audit', 'audio_audit']
-    print('Lets go!')
+    attachment_columns = sys.argv[5].split(',')
+    print(f'attachment_columns: {attachment_columns}')
     download_attachments(
         json_file = survey_entries_file_name,
         attachment_columns = attachment_columns,

@@ -24,3 +24,6 @@ curl -u "username:password" -o ~/mask_data.json https://bdmaskrct.surveycto.com/
 
 2. Transform data to .csv
 3. Download attachments
+
+
+dos2unix
