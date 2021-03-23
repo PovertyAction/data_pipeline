@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Activate venv
-. ./venv/bin/activate
+#. ./venv/bin/activate
 
 #Get user parameters
 SERVER="$1"
@@ -22,7 +22,7 @@ echo $FILE_PATH
 curl -u "${USERNAME}:${PASSWORD}" -o ${FILE_PATH} ${URL}
 
 #2.Transform to .csv
-python file_parser.py ${FILE_PATH}
+python3 file_parser.py ${FILE_PATH} ${DIR_PATH}
 
 #3.Download attachments
-python surveycto_data_downloader.py ${FILE_PATH} 'media' ${USERNAME} ${PASSWORD}
+python3 surveycto_data_downloader.py ${FILE_PATH} './media' ${USERNAME} ${PASSWORD}

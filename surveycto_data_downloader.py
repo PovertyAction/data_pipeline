@@ -110,7 +110,12 @@ if __name__ == '__main__':
     username = sys.argv[3]
     password=sys.argv[4]
 
-    attachment_columns = ['text_audit', 'audio_audit']
+    attachment_columns = []
+
+    for keys_index in range (5, len(sys.argv)):
+       attachment_columns.append(sys.argv[keys_index])
+
+    print(f'Attachment columns: {attachment_columns}')
     print('Lets go!')
     download_attachments(
         json_file = survey_entries_file_name,
