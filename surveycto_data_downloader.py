@@ -73,8 +73,8 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
                 key = prefix.split('.')[1]
 
                 #Print submission date for refference
-                #if key == 'SubmissionDate':
-                #    print(value)
+                if key == 'SubmissionDate':
+                   print(value)
 
                 #Check if key is associated to one of columns with urls to download
                 if key in attachment_columns and value !='':
@@ -104,7 +104,7 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
 
 
 if __name__ == '__main__':
-
+    print(sys.argv)
     survey_entries_file_name = sys.argv[1]
     media_path_destination = sys.argv[2]
     username = sys.argv[3]

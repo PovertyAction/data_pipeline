@@ -28,34 +28,45 @@ tmux new -s data_download
 #Activate venv
 #. ./venv/bin/activate
 
-#Get user parameters
-SERVER="$1"
-FORM_ID="$2"
-START_TIMESPAM="$3"
-USERNAME="$4"
-PASSWORD="$5"
-COLUMNS_WITH_ATTACHMENTS="$6"
+#Get user paramenters
+while [ $# -gt 0 ]; do
+   if [[ $1 == *"--"* ]]; then
+        param="${1/--/}"
+        declare $param="$2"
+   fi
+  shift
+done
+#Expecting: $server $form_id $start_timestamp $username $password $columns_with_attachments $server_key
 
 #Build url
-URL="https://${SERVER}.surveycto.com/api/v2/forms/data/wide/json/${FORM_ID}?date=${START_TIMESPAM}"
+url="https://${server}.surveycto.com/api/v2/forms/data/wide/json/${form_id}?date=${start_timestamp}"
 
 #Build folder for outputs
-OUTPUTS_FOLDER="${SERVER}_${FORM_ID}"
-mkdir ${OUTPUTS_FOLDER}
+outputs_folder="${server}_${form_id}"
+mkdir ${outputs_folder}
 
 #Build json file path
-TIMESTAMP_NOW=$(date +"%s")
-FILE_NAME="${SERVER}_${FORM_ID}_${START_TIMESPAM}_${TIMESTAMP_NOW}"
-JSON_FILE_PATH="${OUTPUTS_FOLDER}/${FILE_NAME}.json"
+timestamp_now=$(date +"%s")
+file_name="${server}_${form_id}_${start_timestamp}_${timestamp_now}"
+json_file_path="${outputs_folder}/${file_name}.json"
 
-#Download main database
-curl -u "${USERNAME}:${PASSWORD}" -o ${JSON_FILE_PATH} ${URL}
-echo ${JSON_FILE_PATH}
+#Download main database. Check if server key was provided
+if [ -z "${server_key}" ]; #server_key is unser or set to empty string
+then
+  curl -u "${username}:${password}" -o ${json_file_path} ${url}
+else
+  echo 'Using private key in curl request'
+  curl -u "${username}:${password}" -F "private_key=${server_key}" -o ${json_file_path} ${url}
+fi
+
+echo ${json_file_path}
 echo 'Fist 100 chars:'
-head -c 100 ${JSON_FILE_PATH}
+head -c 100 ${json_file_path}
 
 #2.Transform to .csv
-python3 file_parser.py ${FILE_PATH} ${DIR_PATH}
+python3 file_parser.py ${file_path} ${outputs_folder}
 
+
+echo ${columns_with_attachments}
 #3.Download attachments
-python3 surveycto_data_downloader.py ${FILE_PATH} './media' ${USERNAME} ${PASSWORD}
+python3 surveycto_data_downloader.py ${json_file_path} './media' ${username} ${password} ${columns_with_attachments}
