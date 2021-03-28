@@ -60,6 +60,7 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
     files_in_dir = get_list_files(dir_path_where_save)
     if files_in_dir is False:
         print(f'Could not read files from folder {dir_path_where_save}')
+        return
     else:
         print(f'Files found in folder {dir_path_where_save}: {files_in_dir}')
     print('Opening json file')

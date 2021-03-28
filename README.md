@@ -10,6 +10,10 @@
 
 # Running pipeline:
 
+chmod +x pipeline.sh
+
+./pipeline.sh --server server --form_id form_id --start_timestamp start_timestamp --username username --password password --columns_with_attachments columns_with_attachments --server_key server_key
+
 '''
 python data_processing_pipeline.py '1615378426' 'bdmaskrct' 'maskrct_phone_followup' $env:SURVEYCTO_USERNAME $env:SURVEYCTO_PASSWORD 'X:\\Box Sync\\MASK Test folder' 'X:\\Box Sync\\MASK Test folder\\media
 '''
