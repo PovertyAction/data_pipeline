@@ -1,28 +1,38 @@
 #How to run:
-#.\windows_pipeline.ps1 -servername bdmaskrct -form_id maskrct_phone_followup -start_timestamp 0 -username mali@poverty-action.org -password mehrabs_password -dir_path "X:\Box\Mask_data"
+#.\windows_pipeline.ps1 -server bdmaskrct -form_id maskrct_phone_followup -start_timestamp 0 -username mali@poverty-action.org -password mehrabs_password -columns_with_attachments text_audit,audio_audit -outputs_path "X:\Box\Mask VM all data\Mask_data"
 
-#Get user parameters
-param ($servername, $form_id, $start_timestamp, $username, $password, $dir_path)
+#.\windows_pipeline.ps1 -server labelremittance -form_id covid_endline_household -start_timestamp 0 -username falamos@poverty-action.org -password my_password -columns_with_attachments audio_audit_survey,comments,text_audit,sstrm_conversation,sstrm_sound_level -outputs_path "X:\Box\CP_Projects\IPA_PHL_Projects\Labeled Remittances\COVID study\Data\endline_all" -server_key "X:\Box\CP_Projects\IPA_PHL_Projects\Labeled Remittances\COVID study\Questionnaire & programming\Programming\key\covid_endline_PRIVATEDONOTSHARE.pem"
 
-#Build url
-$url="https://${servername}.surveycto.com/api/v2/forms/data/wide/json/${form_id}?date=${start_timestamp}"
-write-host $url
+#1. Get user parameters
+param ($server, $form_id, $start_timestamp, $username, $password, $columns_with_attachments, $server_key, $ouputs_path)
 
-#Build main database file path
+#2.Build url
+$url="https://${server}.surveycto.com/api/v2/forms/data/wide/json/${form_id}?date=${start_timestamp}"
+
+#3. Build local folder for json file
+$json_outputs_folder="data/${server}_${form_id}"
+New-Item -ItemType Directory -Force -Path ${json_outputs_folder}
+
+#4. Build json file path
 $timestamp_now=[int][double]::Parse((Get-Date -UFormat %s))
-$local_file_path=".\${servername}_${form_id}_${start_timestamp}_${timestamp_now}.json"
-write-host $file_path
+$file_name=".\${server}_${form_id}_${start_timestamp}_${timestamp_now}.json"
+$json_file_path="${json_outputs_folder}/${file_name}.json"
 
-#1.Download main dataset
-curl.exe -u "${username}:${password}" -o ${local_file_path} ${url}
+#5.Download main database. Check if server key was provided
+if($server_key -eq $null){
+   curl.exe -u "${username}:${password}" -o ${json_file_path} ${url}
+}else {
+   curl -u "${username}:${password}" -F 'private_key=@"'"$server_key"'"' -o ${json_file_path} ${url}
+}
 
-#2.Transform to .csv
-python file_parser.py ${local_file_path} ${dir_path}
+#6.Transform to .csv
+$outputs_folder="${outputs_path}/${server}_${form_id}"
+New-Item -ItemType Directory -Force -Path ${outputs_folder}
 
-#3.Download attachments
-$media_path="${dir_path}\media"
-python surveycto_data_downloader.py ${local_file_path} ${media_path} ${username} ${password}
-#Error sometimes showing up: OSError: [WinError 1006] The volume for a file has been externally altered so that the opened file is no longer valid: 'X:\\Box\\Mask_data\\media'
+python file_parser.py ${json_file_path} ${outputs_folder}
 
+#7.Download attachments
+$media_path="${outputs_folder}\media"
+New-Item -ItemType Directory -Force -Path ${media_path}
 
-#4. Delete .json file from local
+python surveycto_data_downloader.py "${json_file_path}" "${media_path}" "${username}" "${password}" "${columns_with_attachments}"
