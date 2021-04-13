@@ -31,7 +31,7 @@ def parse_json_to_csv_with_keys(json_filename, json_keys, dir_path):
     df = pd.DataFrame()
     #If output file exists, delete it
     OUTPUT_FILE = os.path.join(dir_path, os.path.basename(json_filename).split('.')[0]+'.csv')
-    TEMP_OUTPUT_FILE = json_filename.split('.')[0]+'.csv'
+    TEMP_OUTPUT_FILE = os.path.basename(json_filename).split('.')[0]+'.csv'
     if os.path.exists(TEMP_OUTPUT_FILE):
         print(f'Removing old version of {TEMP_OUTPUT_FILE}')
         os.remove(TEMP_OUTPUT_FILE)
