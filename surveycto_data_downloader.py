@@ -16,14 +16,28 @@ def get_list_files(dir_path):
         print(f'{dir_path} is not a directory')
         return False
 
-def download_file_from_surveycto(file_url, file_path_where_save, username, password):
+def download_file_from_surveycto(file_url, file_path_where_save, username, password, encryption_key=False):
 
     try:
         headers = {'X-OpenRosa-Version': '1.0'}
         auth_basic = requests.auth.HTTPBasicAuth(
             username=username, password=password)
 
-        response = requests.get(file_url,
+        print('file_url')
+        print(file_url)
+
+        if encryption_key:
+            print('Using private key for download')
+            print(encryption_key)
+            print(encryption_key.endswith('.pem'))
+            print(open(encryption_key, 'rb'))
+            files = {'private_key': open(encryption_key, 'rb')}
+            response = requests.post(file_url,
+                                    files=files,
+                                    headers = headers,
+                                    auth = auth_basic)
+        else:
+            response = requests.get(file_url,
                              headers = headers,
                              auth = auth_basic)
 
@@ -35,6 +49,7 @@ def download_file_from_surveycto(file_url, file_path_where_save, username, passw
 
         #Save response content in file
         data = response.content
+        print(data)
 
         f = open(file_path_where_save, 'wb')
         f.write(data)
@@ -55,7 +70,7 @@ def download_survey_entries(start_day_timespam, server_name, form_id, username, 
 
     return download_file_from_surveycto(file_url, file_path_where_save, username, password)
 
-def download_attachments(json_file, attachment_columns, dir_path_where_save, username, password):
+def download_attachments(json_file, attachment_columns, dir_path_where_save, username, password, encryption_key):
 
     files_in_dir = get_list_files(dir_path_where_save)
     if files_in_dir is False:
@@ -95,7 +110,8 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
                     #Download file to local if it doesnt exist already
                     file_path = os.path.join(dir_path_where_save, file_name)
 
-                    download_status = download_file_from_surveycto(file_url=value, file_path_where_save=file_path, username=username, password=password)
+                    download_status = download_file_from_surveycto(file_url=value, file_path_where_save=file_path, username=username, password=password, encryption_key=encryption_key)
+
                     if download_status:
                         print(f'{file_path} succesfully downloaded')
                     else:
@@ -110,15 +126,21 @@ if __name__ == '__main__':
     media_path_destination = sys.argv[2]
     username = sys.argv[3]
     password=sys.argv[4]
-
     attachment_columns = sys.argv[5].split(',')
+
+    if len(sys.argv)>6:
+        encryption_key = sys.argv[6]
+    else:
+        encryption_key = False
+
     print(f'attachment_columns: {attachment_columns}')
     download_attachments(
         json_file = survey_entries_file_name,
         attachment_columns = attachment_columns,
         dir_path_where_save= media_path_destination,
         username=username,
-        password=password)
+        password=password,
+        encryption_key=encryption_key)
 
 
 
