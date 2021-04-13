@@ -8,9 +8,9 @@ import time
 
 def get_list_files(dir_path):
     if os.path.isdir(dir_path):
-        print('a')
+        print(f'Getting list of files in {dir_path}')
         only_files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
-        print('b')
+        print('Finished getting list of files')
         return only_files
     else:
         print(f'{dir_path} is not a directory')
@@ -28,9 +28,6 @@ def download_file_from_surveycto(file_url, file_path_where_save, username, passw
 
         if encryption_key:
             print('Using private key for download')
-            print(encryption_key)
-            print(encryption_key.endswith('.pem'))
-            print(open(encryption_key, 'rb'))
             files = {'private_key': open(encryption_key, 'rb')}
             response = requests.post(file_url,
                                     files=files,
@@ -49,7 +46,6 @@ def download_file_from_surveycto(file_url, file_path_where_save, username, passw
 
         #Save response content in file
         data = response.content
-        print(data)
 
         f = open(file_path_where_save, 'wb')
         f.write(data)
@@ -77,7 +73,7 @@ def download_attachments(json_file, attachment_columns, dir_path_where_save, use
         print(f'Could not read files from folder {dir_path_where_save}')
         return
     else:
-        print(f'Files found in folder {dir_path_where_save}: {files_in_dir}')
+        print(f'N files found in folder {dir_path_where_save}: {len(files_in_dir)}')
     print('Opening json file')
     with open(json_file, 'rb') as input_file:
         # load json iteratively
