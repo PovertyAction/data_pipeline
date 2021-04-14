@@ -8,10 +8,15 @@ import time
 
 def get_list_files(dir_path):
     if os.path.isdir(dir_path):
-        print(f'Getting list of files in {dir_path}')
-        only_files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
-        print('Finished getting list of files')
-        return only_files
+
+        list_files = []
+        for dirpath, dirnames, filenames in os.walk(dir_path):
+
+            if dirpath == dir_path:
+                list_files = filenames
+
+        print(f'Finished getting list of files. Its {len(list_files)} of them')
+        return list_files
     else:
         print(f'{dir_path} is not a directory')
         return False
