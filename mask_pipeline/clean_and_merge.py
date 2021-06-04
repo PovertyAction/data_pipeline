@@ -50,7 +50,17 @@ def replace_values_with_labels(row_dict, parent_file_name):
 
     #@Mehrab complete
     columns_and_value_labels_for_replacement = \
-        {'status-mask': {'0':'No mask'}}
+        {'status-mask': {'0':'No mask', '1':'Non-mask face covering', '6':'Any Mask - PROPERLY', '7':'Any Mask - IMPROPERLY'}, 
+        'status-distance': {'1':"Someone within arm's length", '0':"Someone within arm's length"},
+        'status-gender': {'1':"Male", '2':"Female"},
+        'status-agegroup': {'1':"Young (below 30)", '2':"Middle-age (30-50)", '3':"Old (50+)"},
+        'intro_group-area': {'1':"Gabtali bus terminal", '2':"Mohammadpur town hall", '3':"Mohammadpur bus stand", 
+                            '4':"Mohammadpur bus stand", '5':"Farmgate area", '6':"Badda and notun market areas",
+                            '7':"Mirpur-1 Golchottor, Shah Ali Market", '8':"Mirpur-10 Golchottor",
+                            '9':"Bashundhara City Shopping Mall", '10':"Jamuna Future Park Shopping Mall",
+                            '11':"Uttara Muscat Plaza Shopping Mall", '12':"Uttara Rajalakshi Shopping Mall",
+                            '13':"Mohakhali bus terminal"}
+        }
 
     if get_country(parent_file_name) == BANGLADESH:
 
