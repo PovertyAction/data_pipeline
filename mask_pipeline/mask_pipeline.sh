@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #How to run:
-#./mask_pipeline.sh --server bdmaskrct --form_id mask_monitoring_form_bn --repeat_group ind_group --start_timestamp 0 --username "mali@poverty-action.org" --password "password" --server_key "C:/path/to/server/key"
+#./mask_pipeline.sh --server bdmaskrct --form_id mask_monitoring_form_bn --repeat_group ind_group --start_timestamp 0 --username "mali@poverty-action.org" --password "password"
 
 #1. Get user paramenters
 while [ $# -gt 0 ]; do
@@ -17,7 +17,7 @@ parent_url="https://${server}.surveycto.com/api/v1/forms/data/csv/${form_id}"
 repeatgroup_url="https://${server}.surveycto.com/api/v1/forms/data/csv/${form_id}/${repeat_group}"
 
 #3. Build local folder for downloads
-outputs_folder="data/${server}_${form_id}"
+outputs_folder="data"
 mkdir ${outputs_folder}
 
 #4. Build file paths
@@ -37,12 +37,11 @@ else
 fi
 
 #6. Clean and merge files
-csv_merged_file_path="${outputs_folder}/merged.csv"
-
-python3 clean_and_merge.py "${parent_file_name}" "${repeatgroup_file_name}" "${merged_file_path}"
+csv_merged_file_path="${outputs_folder}/merged_${server}_${form_id}_${start_timestamp}_${timestamp_now}.csv"
+python3 clean_and_merge.py "${parent_file_name}" "${repeatgroup_file_name}" "${csv_merged_file_path}"
 
 #7. Transform all bangladesh csv files to one json
-json_merged_file_path="${outputs_folder}/merged.csv"
+json_merged_file_path="${outputs_folder}/merged_${server}_${form_id}_${start_timestamp}_${timestamp_now}.json"
 python3 csv_to_json.py "${csv_merged_file_path}" "${json_merged_file_path}"
 
 #8. Upload csv and json to aws s3 bucket

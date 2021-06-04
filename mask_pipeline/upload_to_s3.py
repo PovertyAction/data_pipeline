@@ -33,4 +33,8 @@ if __name__ == '__main__':
     file_to_upload = sys.argv[1]
     bucket = sys.argv[2]
 
+    print('Running upload_to_s3.py with following parameters')
+    print(f'file_to_upload: {file_to_upload}')
+    print(f'bucket: {bucket}')
+
     upload_file(file_to_upload, bucket)

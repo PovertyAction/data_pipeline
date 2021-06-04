@@ -6,18 +6,17 @@ import csv
 import os
 import sys
 
-def main(csv_file):
+def main(csv_file, json_file):
 
     with open(csv_file, 'r') as input_file:
         reader = csv.DictReader(input_file)
 
-        jsonoutput = os.path.splitext(csv_file)[0] + '.json'
 
         #Delete if file exists
-        if os.path.exists(jsonoutput):
-            os.remove(jsonoutput)
+        if os.path.exists(json_file):
+            os.remove(json_file)
 
-        with open(jsonoutput, 'a') as f:
+        with open(json_file, 'a') as f:
 
             #Write open bracket
             f.write('[')
@@ -40,5 +39,12 @@ def main(csv_file):
 
 
 if __name__ == '__main__':
+
     csv_file = sys.argv[1]
-    main(csv_file)
+    json_file = sys.argv[2]
+
+    print('Running csv_to_json.py with following parameters')
+    print(f'csv_file: {csv_file}')
+    print(f'json_file: {json_file}')
+    
+    main(csv_file, json_file)
