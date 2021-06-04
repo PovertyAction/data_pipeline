@@ -45,6 +45,9 @@ json_merged_file_path="${outputs_folder}/merged_${server}_${form_id}_${start_tim
 python3 csv_to_json.py "${csv_merged_file_path}" "${json_merged_file_path}"
 
 #8. Upload csv and json to aws s3 bucket
-s3_bucket="masks_data"
+s3_bucket="mask-monitoring-project"
 python3 upload_to_s3.py "${csv_merged_file_path}" "${s3_bucket}"
 python3 upload_to_s3.py "${json_merged_file_path}" "${s3_bucket}"
+
+#9. Generate presigned url to download data
+python3 generate_s3_presigned_url.py "${s3_bucket}" "merged_${server}_${form_id}_${start_timestamp}_${timestamp_now}.json"
