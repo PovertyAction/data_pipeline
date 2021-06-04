@@ -30,6 +30,17 @@ def clean_parent_df(df, parent_file_name):
     #Cleaning for bangladesh
     if get_country(parent_file_name) == BANGLADESH:
 
+        #Value label replacements
+        intro_group_area_replacements_dict = \
+            {1:"Gabtali bus terminal", 2:"Mohammadpur town hall", 3:"Mohammadpur bus stand",
+            4:"Mohammadpur bus stand", 5:"Farmgate area", 6:"Badda and notun market areas",
+            7:"Mirpur-1 Golchottor, Shah Ali Market", 8:"Mirpur-10 Golchottor",
+            9:"Bashundhara City Shopping Mall", 10:"Jamuna Future Park Shopping Mall",
+            11:"Uttara Muscat Plaza Shopping Mall", 12:"Uttara Rajalakshi Shopping Mall",
+            13:"Mohakhali bus terminal"}
+
+        df['intro_group-area'] = df['intro_group-area'].replace(intro_group_area_replacements_dict)
+
         #Change instance_date = "2021-05-08" to "2021-05-09"
         df['instance_date'] = df['instance_date'].replace(['2021-05-08'],'2021-05-09')
 
@@ -48,19 +59,15 @@ def clean_parent_df(df, parent_file_name):
 
 def replace_values_with_labels(row_dict, parent_file_name):
 
-    #@Mehrab complete
     columns_and_value_labels_for_replacement = \
-        {'status-mask': {'0':'No mask', '1':'Non-mask face covering', '6':'Any Mask - PROPERLY', '7':'Any Mask - IMPROPERLY'}, 
+        {'status-mask': {'0':'No mask', '1':'Non-mask face covering', '6':'Any Mask - PROPERLY', '7':'Any Mask - IMPROPERLY'},
         'status-distance': {'1':"Someone within arm's length", '0':"Someone within arm's length"},
         'status-gender': {'1':"Male", '2':"Female"},
-        'status-agegroup': {'1':"Young (below 30)", '2':"Middle-age (30-50)", '3':"Old (50+)"},
-        'intro_group-area': {'1':"Gabtali bus terminal", '2':"Mohammadpur town hall", '3':"Mohammadpur bus stand", 
-                            '4':"Mohammadpur bus stand", '5':"Farmgate area", '6':"Badda and notun market areas",
-                            '7':"Mirpur-1 Golchottor, Shah Ali Market", '8':"Mirpur-10 Golchottor",
-                            '9':"Bashundhara City Shopping Mall", '10':"Jamuna Future Park Shopping Mall",
-                            '11':"Uttara Muscat Plaza Shopping Mall", '12':"Uttara Rajalakshi Shopping Mall",
-                            '13':"Mohakhali bus terminal"}
+        'status-agegroup': {'1':"Young (below 30)", '2':"Middle-age (30-50)", '3':"Old (50+)"}
         }
+
+
+
 
     if get_country(parent_file_name) == BANGLADESH:
 
@@ -202,6 +209,12 @@ if __name__ == '__main__':
     parent_file_name = sys.argv[1]
     repeatgroup_file_name = sys.argv[2]
     output_file = sys.argv[3]
+
+    print('Running cleand_and_merge.py with following parameters')
+    print(f'parent_file_name: {parent_file_name}')
+    print(f'repeatgroup_file_name: {repeatgroup_file_name}')
+    print(f'output_file: {output_file}')
+
 
     main(parent_file_name, repeatgroup_file_name, output_file)
 
