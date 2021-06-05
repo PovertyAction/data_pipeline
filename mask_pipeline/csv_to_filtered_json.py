@@ -6,6 +6,15 @@ import csv
 import os
 import sys
 
+def filter_row(row_dict):
+
+     selected_keys = ['status_mask', 'status_distance', 'status-agegroup', 'status-gender', 'timestamp', 'uid', 'intro_group-area', 'district_group-ward_village', 'gps-Latitude', 'gps-Longitude', 'gps-Accuracy']
+
+     filtered_row_dict = {key: row_dict[key] for key in selected_keys}
+
+     return filtered_row_dict
+
+
 def main(csv_file, json_file):
 
     with open(csv_file, 'r') as input_file:
@@ -31,7 +40,8 @@ def main(csv_file, json_file):
                 else:
                     f.write(',\n')
 
-                json.dump(row, f)
+                filtered_row = filter_row(row)
+                json.dump(filtered_row, f)
 
 
             #Write closing bracket
@@ -46,5 +56,5 @@ if __name__ == '__main__':
     print('Running csv_to_json.py with following parameters')
     print(f'csv_file: {csv_file}')
     print(f'json_file: {json_file}')
-    
+
     main(csv_file, json_file)
