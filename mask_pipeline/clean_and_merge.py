@@ -33,13 +33,54 @@ def clean_parent_df(df, parent_file_name):
         #Value label replacements
         intro_group_area_replacements_dict = \
             {1:"Gabtali bus terminal", 2:"Mohammadpur town hall", 3:"Mohammadpur bus stand",
-            4:"Mohammadpur bus stand", 5:"Farmgate area", 6:"Badda and notun market areas",
+            4:"Mohammadpur Shia Mosque", 5:"Farmgate area", 6:"Badda and notun market areas",
             7:"Mirpur-1 Golchottor, Shah Ali Market", 8:"Mirpur-10 Golchottor",
             9:"Bashundhara City Shopping Mall", 10:"Jamuna Future Park Shopping Mall",
             11:"Uttara Muscat Plaza Shopping Mall", 12:"Uttara Rajalakshi Shopping Mall",
             13:"Mohakhali bus terminal"}
 
-        df['intro_group-area'] = df['intro_group-area'].replace(intro_group_area_replacements_dict)
+        #Add extra columns
+        upazila_replacement_dict = \
+                {"Gabtali bus terminal":"Darus Salam", "Mohammadpur town hall":"Mohammadpur", "Mohammadpur bus stand":"Mohammadpur",
+                "Mohammadpur Shia Mosque":"Mohammadpur", "Farmgate area":"Tejgaon", "Badda and notun market areas":"Badda",
+                "Mirpur-1 Golchottor, Shah Ali Market":"Mirpur", "Mirpur-10 Golchottor":"Mirpur",
+                "Bashundhara City Shopping Mall":"Sher-E-Bangla Nagar", "Jamuna Future Park Shopping Mall":"Khilkhet",
+                "Uttara Muscat Plaza Shopping Mall":"Uttara", "Uttara Rajalakshi Shopping Mall":"Uttara",
+                "Mohakhali bus terminal":"Tejgaon"}
+
+
+        union_replacement_dict = \
+                {"Gabtali bus terminal":"Ward No-10", "Mohammadpur town hall":"Ward No-31", "Mohammadpur bus stand":"Ward No-33",
+                "Mohammadpur Shia Mosque":"Ward No-33", "Farmgate area":"Ward No-27", "Badda and notun market areas":"Ward No-21",
+                "Mirpur-1 Golchottor, Shah Ali Market":"Ward No-8", "Mirpur-10 Golchottor":"Ward No-3",
+                "Bashundhara City Shopping Mall":"Ward No-27", "Jamuna Future Park Shopping Mall":"Ward No-17",
+                "Uttara Muscat Plaza Shopping Mall":"Ward No-1", "Uttara Rajalakshi Shopping Mall":"Ward No-1",
+                "Mohakhali bus terminal":"Ward No-20"}
+                
+
+        district_replacement_dict = \
+                {"Gabtali bus terminal":"Dhaka", "Mohammadpur town hall":"Dhaka", "Mohammadpur bus stand":"Dhaka",
+                "Mohammadpur Shia Mosque":"Dhaka", "Farmgate area":"Dhaka", "Badda and notun market areas":"Dhaka",
+                "Mirpur-1 Golchottor, Shah Ali Market":"Dhaka", "Mirpur-10 Golchottor":"Dhaka",
+                "Bashundhara City Shopping Mall":"Dhaka", "Jamuna Future Park Shopping Mall":"Dhaka",
+                "Uttara Muscat Plaza Shopping Mall":"Dhaka", "Uttara Rajalakshi Shopping Mall":"Dhaka",
+                "Mohakhali bus terminal":"Dhaka"}
+
+
+        division_replacement_dict = \
+                {"Gabtali bus terminal":"Dhaka", "Mohammadpur town hall":"Dhaka", "Mohammadpur bus stand":"Dhaka",
+                "Mohammadpur Shia Mosque":"Dhaka", "Farmgate area":"Dhaka", "Badda and notun market areas":"Dhaka",
+                "Mirpur-1 Golchottor, Shah Ali Market":"Dhaka", "Mirpur-10 Golchottor":"Dhaka",
+                "Bashundhara City Shopping Mall":"Dhaka", "Jamuna Future Park Shopping Mall":"Dhaka",
+                "Uttara Muscat Plaza Shopping Mall":"Dhaka", "Uttara Rajalakshi Shopping Mall":"Dhaka",
+                "Mohakhali bus terminal":"Dhaka"}
+
+        
+        df['intro_group-area']      = df['intro_group-area'].replace(intro_group_area_replacements_dict)
+        df['intro_group-division']  = df['intro_group-area'].replace(division_replacement_dict)
+        df['intro_group-district']  = df['intro_group-area'].replace(district_replacement_dict)
+        df['intro_group-upazila']   = df['intro_group-area'].replace(upazila_replacement_dict)
+        df['intro_group-union']     = df['intro_group-area'].replace(union_replacement_dict)
 
         #Change instance_date = "2021-05-08" to "2021-05-09"
         df['instance_date'] = df['instance_date'].replace(['2021-05-08'],'2021-05-09')
