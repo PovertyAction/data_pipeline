@@ -2,6 +2,7 @@
 import sys
 import boto3
 from botocore.exceptions import ClientError
+from masks_aws_credentials import *
 
 def create_presigned_url(bucket_name, object_name, expiration=604800):
     """Generate a presigned URL to share an S3 object
@@ -13,7 +14,9 @@ def create_presigned_url(bucket_name, object_name, expiration=604800):
     """
 
     # Generate a presigned URL for the S3 object
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client('s3',
+        aws_access_key_id = AWS_ACCESS_KEY,
+        aws_secret_access_key = AWS_SECRET_KEY)
     try:
         response = s3_client.generate_presigned_url('get_object',
                                                     Params={'Bucket': bucket_name,
