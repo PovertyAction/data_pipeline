@@ -93,6 +93,7 @@ def clean_parent_df(df, parent_file_name):
 
         #Drop if key == "uuid:20037a8b-8bd5-493f-b77b-3c00042c1d96"
         df = df[df['KEY'] != "uuid:20037a8b-8bd5-493f-b77b-3c00042c1d96"]
+        df = df[df['KEY'] != "uuid:3b146561-eb2e-4bcd-8451-7cad5dfd68e7"]
 
         return df
 
