@@ -1,3 +1,4 @@
 ijson
 pandas
-boxsdk
+setuptools_rust
+boxsdk[jwt]>=2.0.0
