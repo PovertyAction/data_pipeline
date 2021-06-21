@@ -56,7 +56,7 @@ def clean_parent_df(df, parent_file_name):
                 "Bashundhara City Shopping Mall":"Ward No-27", "Jamuna Future Park Shopping Mall":"Ward No-17",
                 "Uttara Muscat Plaza Shopping Mall":"Ward No-1", "Uttara Rajalakshi Shopping Mall":"Ward No-1",
                 "Mohakhali bus terminal":"Ward No-20"}
-                
+
 
         district_replacement_dict = \
                 {"Gabtali bus terminal":"Dhaka", "Mohammadpur town hall":"Dhaka", "Mohammadpur bus stand":"Dhaka",
@@ -75,18 +75,17 @@ def clean_parent_df(df, parent_file_name):
                 "Uttara Muscat Plaza Shopping Mall":"Dhaka", "Uttara Rajalakshi Shopping Mall":"Dhaka",
                 "Mohakhali bus terminal":"Dhaka"}
 
-        
-        df['intro_group-area']      = df['intro_group-area'].replace(intro_group_area_replacements_dict)
-        df['intro_group-division']  = df['intro_group-area'].replace(division_replacement_dict)
-        df['intro_group-district']  = df['intro_group-area'].replace(district_replacement_dict)
-        df['intro_group-upazila']   = df['intro_group-area'].replace(upazila_replacement_dict)
-        df['intro_group-union']     = df['intro_group-area'].replace(union_replacement_dict)
+
+        # df['intro_group-area']      = df['intro_group-area'].replace(intro_group_area_replacements_dict)
+        # df['intro_group-division']  = df['intro_group-area'].replace(division_replacement_dict)
+        # df['intro_group-district']  = df['intro_group-area'].replace(district_replacement_dict)
+        # df['intro_group-upazila']   = df['intro_group-area'].replace(upazila_replacement_dict)
+        # df['intro_group-union']     = df['intro_group-area'].replace(union_replacement_dict)
 
         #Change instance_date = "2021-05-08" to "2021-05-09"
         df['instance_date'] = df['instance_date'].replace(['2021-05-08'],'2021-05-09')
 
         #Adding treatment and baseline indicators
-        #@Mehrab confirm column names and values
         df['baseline'] = np.where(df['instance_date']== '2021-05-09', 'Baseline', 'Rest')
 
         #Change instance_date to data type

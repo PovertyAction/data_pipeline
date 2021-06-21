@@ -8,7 +8,7 @@ import sys
 
 def filter_row(row_dict):
 
-     selected_keys = ['status-mask', 'status-distance', 'status-agegroup', 'status-gender', 'timestamp', 'uid', 'intro_group-area', 'district_group-ward_village', 'gps-Latitude', 'gps-Longitude', 'gps-Accuracy']
+     selected_keys = ['status-mask', 'status-distance', 'status-agegroup', 'status-gender', 'timestamp', 'uid', 'district_group-ward_village', 'gps-Latitude', 'gps-Longitude', 'gps-Accuracy'] #'intro_group-area'
 
      filtered_row_dict = {key: row_dict[key] for key in selected_keys}
 
