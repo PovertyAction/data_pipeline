@@ -3,10 +3,11 @@
 #http://opensource.box.com/box-python-sdk/tutorials/intro.html
 #https://github.com/box/box-python-sdk/blob/master/docs/usage
 import ntpath
-import box_credentials
 import sys
-
+import os
 from boxsdk import Client, OAuth2, JWTAuth
+import pathlib
+import box_credentials
 
 #https://github.com/box/box-python-sdk/blob/master/docs/usage/folders.md#get-the-items-in-a-folder
 def get_list_files(auth_method, box_folder_id):
@@ -15,7 +16,7 @@ def get_list_files(auth_method, box_folder_id):
     print(client)
 
     list_files = []
-    
+
     try:
         items = client.folder(folder_id=str(box_folder_id)).get_items()
     except Exception as e:
@@ -25,6 +26,7 @@ def get_list_files(auth_method, box_folder_id):
 
     for item in items:
         list_files.append(item.name)
+    print(f'Finished getting list files. Amount files: {len(list_files)}')
     return list_files
 
 def upload_file(auth_method, box_folder_id, file_path):
@@ -58,8 +60,13 @@ def get_box_client(authentication_method):
         return client
     elif authentication_method == 'jwt':
         print('jwt client running')
-        jwt_config_file_path = box_credentials.get_jwt_config_file_path()
+        jwt_config_file_name = box_credentials.get_jwt_config_file_name()
+        print(jwt_config_file_name)
+
+        jwt_config_file_path = os.path.join(pathlib.Path(__file__).parent.absolute(),jwt_config_file_name)
         print(jwt_config_file_path)
+
+
         config = JWTAuth.from_settings_file(jwt_config_file_path)
         client = Client(config)
 
