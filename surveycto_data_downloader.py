@@ -266,6 +266,11 @@ def download_attachments_from_csv(attachment_columns,
 
                     #Get file_name (extract /media/ from path)
                     file_name = ntpath.basename(row[c_index])
+                     
+                    #Check if file_name is empty, skip if thats the case
+                    if file_name is None or file_name =='':
+                        print(f'file_name is empty for {c}')                       
+                        continue
 
                     #Build file_url
                     uuid = row[header.index('KEY')]
