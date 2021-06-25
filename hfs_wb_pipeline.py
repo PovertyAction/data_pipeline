@@ -57,7 +57,6 @@ if __name__=='__main__':
     username = args.scto_username
     password = args.scto_password
 
-    use_local_copy_csv_entries = False
 
     for form, csv in forms_and_csv.items():
 
@@ -68,25 +67,25 @@ if __name__=='__main__':
 
         print(f'Start timestam: {start}')
 
-        #Download survey entries first
-        if use_local_copy_csv_entries:
-            csv_full_path = os.path.join(folder_where_csv_are, csv)
-        else:
-            print(f'Downloading entries for {form}')
-            csv_full_path = surveycto_data_downloader.download_survey_entries(
-                        start_day_timespam=0,
-                        server_name=servername,
-                        form_id=form,
-                        username=username,
-                        password=password,
-                        dir_where_to_save=folder_where_csv_are,
-                        format='csv')
+        # #Download survey entries first
+        # if use_local_copy_csv_entries:
+        #     csv_full_path = os.path.join(folder_where_csv_are, csv)
+        # else:
+        print(f'Downloading entries for {form}')
+        json_full_path = surveycto_data_downloader.download_survey_entries(
+                    start_day_timespam=0,
+                    server_name=servername,
+                    form_id=form,
+                    username=username,
+                    password=password,
+                    dir_where_to_save=folder_where_csv_are,
+                    format='json')
 
-            print(f'csv for {form} downloaded. Path: {csv_full_path}')
+        print(f'json for {form} downloaded. Path: {json_full_path}')
 
         print(f'Starting attachments download')
         surveycto_data_downloader.download_attachments(
-            survey_entries_file = csv_full_path,
+            survey_entries_file = json_full_path,
             attachment_columns = columns_with_attachments,
             dir_box_id= box_folder_id,
             username=username,

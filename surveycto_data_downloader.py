@@ -101,7 +101,7 @@ def download_file_from_surveycto(file_url,
         file_path = os.path.join(tmp_folder, file_name)
 
     else:
-        print('wtf')
+        raise ValueError('dir_path_where_to_save and box_folder_id are None')
 
     response = run_surveycto_api_download_request(file_url, username, password, encryption_key)
 
@@ -209,6 +209,7 @@ def download_attachments_from_json(
                         username,
                         password,
                         survey_entries_file,
+                        files_already_downloaded,
                         servername=None,
                         formid=None,
                         dir_path=None,
@@ -343,8 +344,9 @@ def download_attachments(survey_entries_file,
                                 username=username,
                                 password=password,
                                 survey_entries_file=survey_entries_file,
-                                dir_path=None,
-                                dir_box_id=None,
+                                files_already_downloaded=files_already_downloaded,
+                                dir_path=dir_path,
+                                dir_box_id=dir_box_id,
                                 encryption_key=None)
 
 
