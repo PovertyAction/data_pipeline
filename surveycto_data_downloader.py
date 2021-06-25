@@ -120,7 +120,7 @@ def download_file_from_surveycto(file_url,
 
     #If file was supposed to be saved locally, return file_path of downloaded file
     if dir_path_where_to_save:
-        file_path
+        return file_path
 
     #If file was supposed to be saved in box directly, push to box and delete local copy
     if box_folder_id:
@@ -145,12 +145,18 @@ def download_file_from_surveycto(file_url,
 
 
 
-def download_survey_entries(start_day_timespam, server_name, form_id, username, password, dir_where_to_save):
-
-    file_url = f'https://{server_name}.surveycto.com/api/v2/forms/data/wide/json/{form_id}?date={start_day_timespam}'
+def download_survey_entries(start_day_timespam, server_name, form_id, username, password, dir_where_to_save, format='json'):
 
     now_timespam = int(time.time())
-    file_name = f'{server_name}-{form_id}-{start_day_timespam}_{now_timespam}.json'
+
+    if format =='json':
+        file_url = f'https://{server_name}.surveycto.com/api/v2/forms/data/wide/json/{form_id}?date={start_day_timespam}'
+        file_name = f'{server_name}-{form_id}-{start_day_timespam}_{now_timespam}.json'
+    elif format == 'csv':
+        file_url = f'https://{server_name}.surveycto.com/api/v1/forms/data/wide/csv/{form_id}?date={start_day_timespam}'
+        file_name = f'{server_name}-{form_id}-{start_day_timespam}_{now_timespam}.csv'
+    else:
+        raise ValueError(f'{format} not valid format')
 
     return download_file_from_surveycto(file_url=file_url,
                                     username=username,
@@ -266,10 +272,10 @@ def download_attachments_from_csv(attachment_columns,
 
                     #Get file_name (extract /media/ from path)
                     file_name = ntpath.basename(row[c_index])
-                     
+
                     #Check if file_name is empty, skip if thats the case
                     if file_name is None or file_name =='':
-                        print(f'file_name is empty for {c}')                       
+                        print(f'file_name is empty for {c}')
                         continue
 
                     #Build file_url

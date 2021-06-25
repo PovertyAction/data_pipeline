@@ -57,13 +57,34 @@ if __name__=='__main__':
     username = args.scto_username
     password = args.scto_password
 
+    use_local_copy_csv_entries = False
+
     for form, csv in forms_and_csv.items():
 
-        csv_full_path = os.path.join(folder_where_csv_are, csv)
+
         start = time.time()
 
-        print(f'Working on: {csv}')
+        print(f'Working on: {form}')
+
         print(f'Start timestam: {start}')
+
+        #Download survey entries first
+        if use_local_copy_csv_entries:
+            csv_full_path = os.path.join(folder_where_csv_are, csv)
+        else:
+            print(f'Downloading entries for {form}')
+            csv_full_path = surveycto_data_downloader.download_survey_entries(
+                        start_day_timespam=0,
+                        server_name=servername,
+                        form_id=form,
+                        username=username,
+                        password=password,
+                        dir_where_to_save=folder_where_csv_are,
+                        format='csv')
+
+            print(f'csv for {form} downloaded. Path: {csv_full_path}')
+
+        print(f'Starting attachments download')
         surveycto_data_downloader.download_attachments(
             survey_entries_file = csv_full_path,
             attachment_columns = columns_with_attachments,
