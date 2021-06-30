@@ -3,6 +3,16 @@
 #How to run:
 #./mask_pipeline.sh --server bdmaskrct --form_id mask_monitoring_form_bn --repeat_group ind_group --start_timestamp 0 --username "mali@poverty-action.org" --password "password"
 
+#PENDINGS:
+# 1.git pull changes in stata and python file
+# 2.cleaning should be different for different forms
+# 3.install stata in server
+# 4.merge json files for bangladesh gov.
+# 5.give emily and islamul access
+
+#0. Get new version from git if changes have occured in scripts that this pipeline runs (ex, python or stata cleaning files)
+#->git pull origin master
+
 #1. Get user paramenters
 while [ $# -gt 0 ]; do
    if [[ $1 == *"--"* ]]; then
@@ -39,6 +49,11 @@ fi
 #6. Clean and merge files
 csv_merged_file_path="${outputs_folder}/${server}_${form_id}.csv"
 python3 clean_and_merge.py "${parent_file_name}" "${repeatgroup_file_name}" "${csv_merged_file_path}"
+
+#->Incremental downloads pending too. Not necessary but would be good.
+
+#6b. Clean with stata
+#->stata more_clening.do "csv_merged_file_path". The problem with this one is feasibility of loading all data in stata
 
 #7. Transform all bangladesh csv files to one json
 json_merged_file_path="${outputs_folder}/${server}_${form_id}.json"
