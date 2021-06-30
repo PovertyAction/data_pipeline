@@ -29,6 +29,36 @@ def get_list_files(auth_method, box_folder_id):
     print(f'Finished getting list files. Amount files: {len(list_files)}')
     return list_files
 
+def get_file_extension(file_path, include_dot):
+    split_tup = os.path.splitext(file_path)
+    file_extension = split_tup[1]
+    print(file_extension)
+
+    if include_dot:
+        return file_extension
+    else:
+        return file_extension[1:]
+
+def check_file_exists_in_folder(auth_method, box_folder_id, file_name):
+
+    client = get_box_client(auth_method)
+
+    # https://github.com/box/box-python-sdk/blob/main/docs/usage/search.md#search-for-content
+    def prepare_query(box_folder_id, file_name):
+        raise Exception('prepare_query(box_folder_id, file_name) not implemented')
+
+    query = prepare_query(box_folder_id, file_name)
+
+    items = client.search().query(query=query, limit=5, file_extensions=[get_file_extension(file_name, False)])
+
+    for item in items:
+        # print('The item ID is {0} and the item name is {1}'.format(item.id, item.name))
+        #If found one, return true
+        return True
+
+    #If did not find any, return false
+    return False
+
 def upload_file(auth_method, box_folder_id, file_path):
 
     client = get_box_client(auth_method)
