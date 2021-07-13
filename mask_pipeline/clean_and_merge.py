@@ -9,7 +9,7 @@ import numpy as np
 from csv import reader, writer
 import time
 
-BANGLADESH = 'Bangladesh'
+import cleaning_values
 
 def validate_inputs(file_a, file_b):
     #Check that files exist
@@ -21,103 +21,79 @@ def validate_inputs(file_a, file_b):
     return True
 
 
-def get_country(parent_file_name):
-    #PENDING
-    return BANGLADESH
+def replace_values_in_column(df, destiny_column, origin_column, replacements_dict):
 
-def clean_parent_df(df, parent_file_name):
+    print(df.columns)
 
-    #Cleaning for bangladesh
-    if get_country(parent_file_name) == BANGLADESH:
+    df[destiny_column] = \
+        df[origin_column].replace(replacements_dict)
 
-        #Value label replacements
-        intro_group_area_replacements_dict = \
-            {1:"Gabtali bus terminal", 2:"Mohammadpur town hall", 3:"Mohammadpur bus stand",
-            4:"Mohammadpur Shia Mosque", 5:"Farmgate area", 6:"Badda and notun market areas",
-            7:"Mirpur-1 Golchottor, Shah Ali Market", 8:"Mirpur-10 Golchottor",
-            9:"Bashundhara City Shopping Mall", 10:"Jamuna Future Park Shopping Mall",
-            11:"Uttara Muscat Plaza Shopping Mall", 12:"Uttara Rajalakshi Shopping Mall",
-            13:"Mohakhali bus terminal"}
+    return df
 
-        #Add extra columns
-        upazila_replacement_dict = \
-                {"Gabtali bus terminal":"Darus Salam", "Mohammadpur town hall":"Mohammadpur", "Mohammadpur bus stand":"Mohammadpur",
-                "Mohammadpur Shia Mosque":"Mohammadpur", "Farmgate area":"Tejgaon", "Badda and notun market areas":"Badda",
-                "Mirpur-1 Golchottor, Shah Ali Market":"Mirpur", "Mirpur-10 Golchottor":"Mirpur",
-                "Bashundhara City Shopping Mall":"Sher-E-Bangla Nagar", "Jamuna Future Park Shopping Mall":"Khilkhet",
-                "Uttara Muscat Plaza Shopping Mall":"Uttara", "Uttara Rajalakshi Shopping Mall":"Uttara",
-                "Mohakhali bus terminal":"Tejgaon"}
+def replace_values(df, server_formid):
+    #Value label replacements
 
+    #Get replacements for this parent_file_name
+    replacements = cleaning_values.replacements[server_formid]
 
-        union_replacement_dict = \
-                {"Gabtali bus terminal":"Ward No-10", "Mohammadpur town hall":"Ward No-31", "Mohammadpur bus stand":"Ward No-33",
-                "Mohammadpur Shia Mosque":"Ward No-33", "Farmgate area":"Ward No-27", "Badda and notun market areas":"Ward No-21",
-                "Mirpur-1 Golchottor, Shah Ali Market":"Ward No-8", "Mirpur-10 Golchottor":"Ward No-3",
-                "Bashundhara City Shopping Mall":"Ward No-27", "Jamuna Future Park Shopping Mall":"Ward No-17",
-                "Uttara Muscat Plaza Shopping Mall":"Ward No-1", "Uttara Rajalakshi Shopping Mall":"Ward No-1",
-                "Mohakhali bus terminal":"Ward No-20"}
+    if server_formid == 'bdmaskrct_mask_monitoring_form_bn':
+
+        for (destiny_column, origin_column, replacements_dict) in \
+            [('intro_group-area', 'intro_group-area', replacements['intro_group_area_replacements_dict']),
+            ('intro_group-division', 'intro_group-area', replacements['division_replacement_dict']),
+            ('intro_group-district', 'intro_group-area', replacements['district_replacement_dict']),
+            ('intro_group-upazila', 'intro_group-area', replacements['upazila_replacement_dict']),
+            ('intro_group-union', 'intro_group-area', replacements['union_replacement_dict'])]:
+
+            df = replace_values_in_column(df, destiny_column, origin_column, replacements_dict)
+
+    return df
 
 
-        district_replacement_dict = \
-                {"Gabtali bus terminal":"Dhaka", "Mohammadpur town hall":"Dhaka", "Mohammadpur bus stand":"Dhaka",
-                "Mohammadpur Shia Mosque":"Dhaka", "Farmgate area":"Dhaka", "Badda and notun market areas":"Dhaka",
-                "Mirpur-1 Golchottor, Shah Ali Market":"Dhaka", "Mirpur-10 Golchottor":"Dhaka",
-                "Bashundhara City Shopping Mall":"Dhaka", "Jamuna Future Park Shopping Mall":"Dhaka",
-                "Uttara Muscat Plaza Shopping Mall":"Dhaka", "Uttara Rajalakshi Shopping Mall":"Dhaka",
-                "Mohakhali bus terminal":"Dhaka"}
+def drop_values(df, server_formid):
 
+    keys_to_drop = cleaning_values.keys_to_drop[server_formid]
 
-        division_replacement_dict = \
-                {"Gabtali bus terminal":"Dhaka", "Mohammadpur town hall":"Dhaka", "Mohammadpur bus stand":"Dhaka",
-                "Mohammadpur Shia Mosque":"Dhaka", "Farmgate area":"Dhaka", "Badda and notun market areas":"Dhaka",
-                "Mirpur-1 Golchottor, Shah Ali Market":"Dhaka", "Mirpur-10 Golchottor":"Dhaka",
-                "Bashundhara City Shopping Mall":"Dhaka", "Jamuna Future Park Shopping Mall":"Dhaka",
-                "Uttara Muscat Plaza Shopping Mall":"Dhaka", "Uttara Rajalakshi Shopping Mall":"Dhaka",
-                "Mohakhali bus terminal":"Dhaka"}
+    for key_to_drop in keys_to_drop:
+        df = df[df['KEY'] != key_to_drop]
 
+    return df
 
-        # df['intro_group-area']      = df['intro_group-area'].replace(intro_group_area_replacements_dict)
-        # df['intro_group-division']  = df['intro_group-area'].replace(division_replacement_dict)
-        # df['intro_group-district']  = df['intro_group-area'].replace(district_replacement_dict)
-        # df['intro_group-upazila']   = df['intro_group-area'].replace(upazila_replacement_dict)
-        # df['intro_group-union']     = df['intro_group-area'].replace(union_replacement_dict)
+def form_specifics_cleaning (df, server_formid):
 
+    if server_formid == 'bdmaskrct_mask_monitoring_form_bn':
         #Change instance_date = "2021-05-08" to "2021-05-09"
         df['instance_date'] = df['instance_date'].replace(['2021-05-08'],'2021-05-09')
 
-        #Adding treatment and baseline indicators
-        df['baseline'] = np.where(df['instance_date']== '2021-05-09', 'Baseline', 'Rest')
+    return df
 
-        #Change instance_date to data type
-        df['instance_date'] = pd.to_datetime(df['instance_date'])
+def clean_parent_df(df, server_formid):
 
-        #Drop if key == "uuid:20037a8b-8bd5-493f-b77b-3c00042c1d96"
-        df = df[df['KEY'] != "uuid:20037a8b-8bd5-493f-b77b-3c00042c1d96"]
-        df = df[df['KEY'] != "uuid:3b146561-eb2e-4bcd-8451-7cad5dfd68e7"]
+    df = replace_values(df, server_formid)
 
-        return df
+    df = form_specifics_cleaning (df, server_formid)
 
+    #Adding treatment and baseline indicators
+    df['baseline'] = np.where(df['instance_date']== '2021-05-09', 'Baseline', 'Rest')
 
-def replace_values_with_labels(row_dict, parent_file_name):
+    #Change instance_date to data type
+    df['instance_date'] = pd.to_datetime(df['instance_date'])
 
-    columns_and_value_labels_for_replacement = \
-        {'status-mask': {'0':'No mask', '1':'Non-mask face covering', '6':'Any Mask - PROPERLY', '7':'Any Mask - IMPROPERLY'},
-        'status-distance': {'1':"Someone within arm's length", '0':"Someone within arm's length"},
-        'status-gender': {'1':"Male", '2':"Female"},
-        'status-agegroup': {'1':"Young (below 30)", '2':"Middle-age (30-50)", '3':"Old (50+)"}
-        }
+    #Drop specific keys
+    df = drop_values(df, server_formid)
+
+    return df
 
 
+def replace_values_with_labels(row_dict, server_formid):
 
+    columns_and_value_labels_for_replacement = cleaning_values.columns_and_value_labels_for_replacement[server_formid]
 
-    if get_country(parent_file_name) == BANGLADESH:
+    for column, value_label_dict in columns_and_value_labels_for_replacement.items():
 
-        for column, value_label_dict in columns_and_value_labels_for_replacement.items():
-
-            #Replace in row_dict the value in every column by its label according to value_label_dict
-
-            if row_dict[column] in value_label_dict: #We expect this always to be true if columns_and_value_labels_for_replacement is complete
-                row_dict[column] = value_label_dict[row_dict[column]]
+        #Replace in row_dict the value in every column by its label according to value_label_dict
+        if row_dict[column] in value_label_dict: #We expect this always to be true if columns_and_value_labels_for_replacement is complete
+            row_dict[column] = value_label_dict[row_dict[column]]
 
     return row_dict
 
@@ -134,7 +110,7 @@ def add_rows_to_csv(rows, csv_file, sorted_columns, include_header):
 
     print(f'Appended {len(rows)} rows')
 
-def clean_and_merge_files(parent_file_name, repeatgroup_file_name, merged_file_path):
+def clean_and_merge_files(parent_file_name, repeatgroup_file_name, merged_file_path, server_formid):
     '''
     This method will merge repeatgroup_file_name with parent_file_name, creating a new file
     We expect parent_file_name to be small, and hence for us to be able to load it fully to memory
@@ -149,11 +125,10 @@ def clean_and_merge_files(parent_file_name, repeatgroup_file_name, merged_file_p
 
     parent_df = pd.read_csv(parent_file_name)
 
-    parent_df = clean_parent_df(parent_df, parent_file_name)
+    parent_df = clean_parent_df(parent_df, server_formid)
 
     #Select parent columns we want to add to each repeatgroup row
-    #@Mehrab include more if we want
-    parent_cols_to_discard = ['KEY', 'SET-OF-ind_group']
+    parent_cols_to_discard = cleaning_values.parent_cols_to_discard[server_formid]
     parent_cols_to_add = [c for c in parent_df.columns if c not in parent_cols_to_discard]
 
     # Traverse repeatgroup_file_name line by line, merging with parent_file_name
@@ -181,7 +156,7 @@ def clean_and_merge_files(parent_file_name, repeatgroup_file_name, merged_file_p
             for index, row_element in enumerate(row):
                 new_row[repeatgroup_file_columns[index]] = str(row_element)
 
-            new_row = replace_values_with_labels(new_row, parent_file_name)
+            new_row = replace_values_with_labels(new_row, server_formid)
 
             #Merge new_row with info from parent_df
 
@@ -237,27 +212,29 @@ def clean_and_merge_files(parent_file_name, repeatgroup_file_name, merged_file_p
         print(f'n_rows_to_append_per_iteration: {n_rows_to_append_per_iteration}')
 
 
-def main(parent_file_name, repeatgroup_file_name, output_file):
+def main(parent_file_name, repeatgroup_file_name, output_file, server_formid):
 
     valid_inputs = validate_inputs(parent_file_name, repeatgroup_file_name)
     if not valid_inputs:
         sys.exit(1)
 
-    clean_and_merge_files(parent_file_name, repeatgroup_file_name, output_file)
+    clean_and_merge_files(parent_file_name, repeatgroup_file_name, output_file, server_formid)
 
 
 if __name__ == '__main__':
-    parent_file_name = sys.argv[1]
-    repeatgroup_file_name = sys.argv[2]
-    output_file = sys.argv[3]
+    arg_parent_file_name = sys.argv[1]
+    arg_repeatgroup_file_name = sys.argv[2]
+    arg_output_file = sys.argv[3]
+    arg_server_formid = sys.argv[4]
 
     print('Running cleand_and_merge.py with following parameters')
-    print(f'parent_file_name: {parent_file_name}')
-    print(f'repeatgroup_file_name: {repeatgroup_file_name}')
-    print(f'output_file: {output_file}')
+    print(f'parent_file_name: {arg_parent_file_name}')
+    print(f'repeatgroup_file_name: {arg_repeatgroup_file_name}')
+    print(f'output_file: {arg_output_file}')
+    print(f'server_formid: {arg_server_formid}')
 
 
-    main(parent_file_name, repeatgroup_file_name, output_file)
+    main(arg_parent_file_name, arg_repeatgroup_file_name, arg_output_file, arg_server_formid)
 
 
 # Total rows appended: 173605
