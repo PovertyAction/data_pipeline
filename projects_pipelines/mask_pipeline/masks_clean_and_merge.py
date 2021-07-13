@@ -9,7 +9,7 @@ import numpy as np
 from csv import reader, writer
 import time
 
-import cleaning_values
+from cleaning_values import cleaning_values
 
 def validate_inputs(file_a, file_b):
     #Check that files exist
@@ -220,7 +220,7 @@ if __name__ == '__main__':
     arg_output_file = sys.argv[3]
     arg_server_formid = sys.argv[4]
 
-    print('Running cleand_and_merge.py with following parameters')
+    print('Running masks_clean_and_merge.py with following parameters')
     print(f'parent_file_name: {arg_parent_file_name}')
     print(f'repeatgroup_file_name: {arg_repeatgroup_file_name}')
     print(f'output_file: {arg_output_file}')

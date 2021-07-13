@@ -1,4 +1,32 @@
-# Setting up VM:
+# Introduction
+
+This repo provides general scripts to automatize data processing. In particular, we provide modules to:
+
+* Download data using SurveyCTO API
+* Cleaning and merging data
+* Push data to Box using Box API
+* Push data to AWS S3 Buckets
+
+# A note on encryption
+
+If you are pushing data to Box or AWS, the data will not pass through Boxcryptor and hence will not be encrypted. It is research teams responsibility to later encrypt data.
+
+An alternative is to set up pipelines that download data directly to boxcryptor folders. For that, you might want to set up a Lightsail VM. More on ## Lightsail section
+
+# A not on size of data download
+
+Importantly, you might want to consider the size of files you are downloading from SurveyCTO. If they are too big, you might want to use `curl` to download them rather than doing so from `python` scripts.
+
+# A note on .sh files created in windows
+
+After creating `.sh` files in windows, run the command `dos2unix your_pipeline.sh` to transform them so they run on linux machines.
+
+# Setting up your pipeline
+
+
+
+
+# Setting up Lightsail VM
 
 1. Launch AWS Lightsail VM
 2. Install boxcryptor
@@ -22,31 +50,3 @@ Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/
 git clone https://github.com/PovertyAction/surveycto_data_download.git
 
 7. Install dependencies (requirements.txt)
-
-# Running pipeline:
-
-chmod +x pipeline.sh
-
-./pipeline.sh --server server --form_id form_id --start_timestamp start_timestamp --username username --password password --columns_with_attachments columns_with_attachments --server_key server_key
-
-'''
-python data_processing_pipeline.py '1615378426' 'bdmaskrct' 'maskrct_phone_followup' $env:SURVEYCTO_USERNAME $env:SURVEYCTO_PASSWORD 'X:\\Box Sync\\MASK Test folder' 'X:\\Box Sync\\MASK Test folder\\media
-'''
-
-to:
-
-1. Download survey data in json format
-
-```
-curl -u "username:password" -o ~/mask_data.json https://bdmaskrct.surveycto.com/api/v2/forms/data/wide/json/maskrct_phone_followup?date=0
-
-
-
-
-```
-
-2. Transform data to .csv
-3. Download attachments
-
-
-dos2unix

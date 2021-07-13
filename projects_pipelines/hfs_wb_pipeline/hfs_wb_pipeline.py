@@ -1,10 +1,14 @@
+'''
+python hfs_wb_pipeline.py --scto_username falamos@poverty-action.org --scto_password 'password_here' --box_folder_id '138702937716'
+'''
+
 import argparse
-
-import surveycto_data_downloader
-
 import os
 import sys
 import time
+
+sys.path.append('../../surveycto')
+import surveycto_data_downloader
 
 def parse_args():
     """ Parse command line arguments.
@@ -34,22 +38,22 @@ if __name__=='__main__':
     server_name = 'hfslatam'
     dir_where_to_save = './data/hfslatam'
     forms_and_json = {
-        'hfslatam_560_Chile':'./data/hfslatam/hfslatam-hfslatam_560_Chile-0_1626200279.json',
-        'hfslatam_570_Colombia':'Encuesta_BM Colombia.csv',
-        'hfslatam_506_cr':'Encuesta_BM_Costa Rica.csv',
-        'hfslatam_503_ES':'Encuesta BM_El Salvador.csv',
-        'hfslatam_504_Honduras':'Encuesta BM_Honduras.csv',
-        'hfslatam_550_Nica':'Encuesta BM_Nicaragua.csv',
-        'hfslatam_510_Peru':'Encuesta BM_Peru.csv',
-        'hfslatam_809_RepDOm':'Encuesta BM_RepDom.csv',
-        'hfslatam_598_Uruguay':'Encuesta BM_ Uruguay.csv'}
+        'hfslatam_560_Chile':'./data/hfslatam/hfslatam-hfslatam_560_Chile-0_1626214786.json',
+        'hfslatam_570_Colombia':None,
+        'hfslatam_506_cr':None,
+        'hfslatam_503_ES':None,
+        'hfslatam_504_Honduras':None,
+        'hfslatam_550_Nica':None,
+        'hfslatam_510_Peru':None,
+        'hfslatam_809_RepDOm':None,
+        'hfslatam_598_Uruguay':None
+    }
 
     columns_with_attachments = ['audit', 'text_audit']
 
     box_folder_id = args.box_folder_id
 
     servername = 'hfslatam'
-
 
     username = args.scto_username
     password = args.scto_password

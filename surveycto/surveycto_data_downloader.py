@@ -7,7 +7,7 @@ import ntpath
 import time
 import csv
 
-sys.path.append('box')
+sys.path.append(os.path.join(os.path.dirname(__file__),'../box'))
 import box_manager
 
 def get_local_list_files(dir_path):
@@ -88,6 +88,10 @@ def download_file_from_surveycto(file_url,
     print(f'Starting download of {file_url}')
 
     if dir_path_where_to_save:
+        #Create dir_path_where_to_save if it does not exist
+        if not os.path.exists(dir_path_where_to_save):
+            os.makedirs(dir_path_where_to_save)
+
         file_path = os.path.join(dir_path_where_to_save, file_name)
 
     #If files should be downloaded to box directly, we will download a local copy first, push to box and then delete

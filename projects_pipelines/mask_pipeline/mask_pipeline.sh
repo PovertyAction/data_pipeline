@@ -3,16 +3,6 @@
 #How to run:
 #./mask_pipeline.sh --server bdmaskrct --form_id mask_monitoring_form_bn --repeat_group ind_group --start_timestamp 0 --username "mali@poverty-action.org" --password "password"
 
-#PENDINGS:
-# 1.git pull changes in stata and python file
-# 2.cleaning should be different for different forms
-# 3.install stata in server
-# 4.merge json files for bangladesh gov.
-# 5.give emily and islamul access
-
-#0. Get new version from git if changes have occured in scripts that this pipeline runs (ex, python or stata cleaning files)
-#->git pull origin master
-
 #1. Get user paramenters
 while [ $# -gt 0 ]; do
    if [[ $1 == *"--"* ]]; then
@@ -27,8 +17,8 @@ parent_url="https://${server}.surveycto.com/api/v1/forms/data/csv/${form_id}"
 repeatgroup_url="https://${server}.surveycto.com/api/v1/forms/data/csv/${form_id}/${repeat_group}"
 
 #3. Build local folder for downloads
-outputs_folder="data"
-mkdir ${outputs_folder}
+outputs_folder="data/${server}/${form_id}"
+mkdir -p ${outputs_folder}
 
 #4. Build file paths
 timestamp_now=$(date +"%s")
@@ -41,29 +31,25 @@ then
   curl -u "${username}:${password}" -o ${parent_file_name} ${parent_url}
   curl -u "${username}:${password}" -o ${repeatgroup_file_name} ${repeatgroup_url}
 else
-  echo 'Using private key in curl request'
   curl -u "${username}:${password}" -F 'private_key=@"'"$server_key"'"' -o ${parent_file_name} ${parent_url}
   curl -u "${username}:${password}" -F 'private_key=@"'"$server_key"'"' -o ${repeatgroup_file_name} ${repeatgroup_url}
 fi
 
 #6. Clean and merge files
 csv_merged_file_path="${outputs_folder}/${server}_${form_id}.csv"
-python3 clean_and_merge.py "${parent_file_name}" "${repeatgroup_file_name}" "${csv_merged_file_path}"
-
-#->Incremental downloads pending too. Not necessary but would be good.
-
-#6b. Clean with stata
-#->stata more_clening.do "csv_merged_file_path". The problem with this one is feasibility of loading all data in stata
+python3 masks_clean_and_merge.py "${parent_file_name}" "${repeatgroup_file_name}" "${csv_merged_file_path}" "${server}_${form_id}"
 
 #7. Transform all bangladesh csv files to one json
 json_merged_file_path="${outputs_folder}/${server}_${form_id}.json"
-python3 csv_to_filtered_json.py "${csv_merged_file_path}" "${json_merged_file_path}"
+selected_keys="status-mask,status-distance,status-agegroup,status-gender,timestamp,uid,intro_group-area,district_group-ward_village,gps-Latitude,gps-Longitude,gps-Accuracy,intro_group-division,intro_group-district,intro_group-upazila,intro_group-union"
+
+python3 ../../files_transformations/csv_to_filtered_json.py "${csv_merged_file_path}" "${json_merged_file_path}" "${selected_keys}"
 
 #8. Upload csv and json to aws s3 bucket
 s3_bucket="mask-monitoring-project"
-python3 upload_to_s3.py "${csv_merged_file_path}" "${s3_bucket}"
-python3 upload_to_s3.py "${json_merged_file_path}" "${s3_bucket}"
+python3 ../../aws/upload_to_s3.py "${csv_merged_file_path}" "${s3_bucket}"
+python3 ../../aws/upload_to_s3.py "${json_merged_file_path}" "${s3_bucket}"
 
 #9. Generate presigned url to download data
-python3 generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.csv"
-python3 generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.json"
+python3 ../aws/generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.csv"
+python3 ../aws/generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.json"
