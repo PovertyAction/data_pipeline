@@ -45,11 +45,9 @@ def get_list_files(dir_path = None, dir_box_id = None):
 def safe_delete(file_path):
     try:
         os.remove(file_path)
-        return True
     except Excepion as e:
-        print("An exception occurred")
-        print(e)
-        return False
+        print("An exception occurred in safe_delete")
+        raise Exception(e)
 
 def run_surveycto_api_download_request(file_url, username, password, encryption_key):
 
@@ -87,7 +85,7 @@ def download_file_from_surveycto(file_url,
     '''
     Uses surveycto api to download file to local or to box
     '''
-    print(f'Starting downoad of {file_url}')
+    print(f'Starting download of {file_url}')
 
     if dir_path_where_to_save:
         file_path = os.path.join(dir_path_where_to_save, file_name)
@@ -106,10 +104,10 @@ def download_file_from_surveycto(file_url,
     response = run_surveycto_api_download_request(file_url, username, password, encryption_key)
 
     #Check if error status code
-    if response.status_code == 500:
-        print(f'Error {response.status_code} when downloading {file_url}')
-        print(response.text)
-        return False
+    if response.status_code != 200:
+        error_msg = f'Error {response.status_code} when downloading {file_url}. '
+        error_msg += response.text
+        raise Exception(error_msg)
 
     #Save response content in file
     data = response.content
@@ -118,29 +116,18 @@ def download_file_from_surveycto(file_url,
     f.write(data)
     f.close()
 
-    #If file was supposed to be saved locally, return file_path of downloaded file
+    #If file was supposed to be saved locally,return
     if dir_path_where_to_save:
-        return file_path
+        return
 
     #If file was supposed to be saved in box directly, push to box and delete local copy
     if box_folder_id:
 
        #Upload file to box
-       upload_status = box_manager.upload_file('jwt', box_folder_id, file_path)
-       if upload_status:
-           print(f'{file_path} succesfully uploaded to Box')
-       else:
-           print(f'Error uploading {file_path} to Box. Moving to next one')
-           return False
+       box_manager.upload_file('jwt', box_folder_id, file_path)
 
        #Delete file from local
-       delete_status = safe_delete(file_path)
-       if delete_status:
-           print(f'{file_path} deleted from local')
-           return True
-       else:
-           print(f'Error deleting {file_path}. Moving to next one')
-           return False
+       safe_delete(file_path)
 
 
 
@@ -158,21 +145,33 @@ def download_survey_entries(start_day_timespam, server_name, form_id, username, 
     else:
         raise ValueError(f'{format} not valid format')
 
-    return download_file_from_surveycto(file_url=file_url,
-                                    username=username,
-                                    password=password,
-                                    file_name=file_name,
-                                    dir_path_where_to_save=dir_where_to_save)
+    download_file_from_surveycto(file_url=file_url,
+                                username=username,
+                                password=password,
+                                file_name=file_name,
+                                dir_path_where_to_save=dir_where_to_save)
+
+    return os.path.join(dir_where_to_save,file_name)
 
 def get_file_extension(file_path):
     split_tup = os.path.splitext(file_path)
     file_extension = split_tup[1]
-    print(file_extension)
     return file_extension
+
+def file_already_downloaded(file_name, dir_path=None, dir_box_id=None):
+
+    if dir_path:
+        return os.path.isfile(file_name)
+
+    elif dir_box_id:
+        try:
+            file_exists = box_manager.check_file_exists_in_folder('jwt', dir_box_id, file_name)
+            return file_exists
+        except Exception as e:
+            raise Exception(str(e))
 
 
 def check_if_file_exists_or_download_it(file_name,
-                                        files_already_downloaded,
                                         file_url,
                                         username,
                                         password,
@@ -180,15 +179,17 @@ def check_if_file_exists_or_download_it(file_name,
                                         dir_box_id=None,
                                         encryption_key=None):
 
-    #Check if file has already been downloaded. If it does, move to next one.
-    if file_name in files_already_downloaded:
+    #Check if file has already been downloaded. If it does, return.
+
+    if file_already_downloaded(file_name, dir_path, dir_box_id):
         print(f'{file_name} already downloaded')
+        print('')
         return True
 
     #Else, proceed to download
 
     #Download file to local Or download to box directly (download local, push box, delete local)
-    download_status = download_file_from_surveycto(
+    download_file_from_surveycto(
             file_url=file_url,
             username=username,
             password=password,
@@ -197,19 +198,13 @@ def check_if_file_exists_or_download_it(file_name,
             box_folder_id=dir_box_id,
             encryption_key=encryption_key)
 
-    if download_status:
-        print(f'{file_name} succesfully downloaded')
-        return True
-    else:
-        print(f'Error downloading {file_name} from SurveyCTO. Moving to next one')
-        return False
+    # sys.exit(1)
 
 def download_attachments_from_json(
                         attachment_columns,
                         username,
                         password,
                         survey_entries_file,
-                        files_already_downloaded,
                         servername=None,
                         formid=None,
                         dir_path=None,
@@ -236,8 +231,8 @@ def download_attachments_from_json(
                     file_name = ntpath.basename(value)
 
                     #value has the full url to files to download
+                    print(file_name)
                     check_if_file_exists_or_download_it(file_name=file_name,
-                                                        files_already_downloaded=files_already_downloaded,
                                                         file_url=value,
                                                         username=username,
                                                         password=password,
@@ -248,14 +243,12 @@ def download_attachments_from_csv(attachment_columns,
                         username,
                         password,
                         survey_entries_file,
-                        files_already_downloaded,
                         servername,
                         formid,
                         dir_path=None,
                         dir_box_id=None, encryption_key=None):
 
 
-    print('eeee')
     with open(survey_entries_file, 'r') as read_obj:
         csv_reader = csv.reader(read_obj)
         header = next(csv_reader)
@@ -282,19 +275,21 @@ def download_attachments_from_csv(attachment_columns,
                     #Build file_url
                     uuid = row[header.index('KEY')]
 
-
                     if servername is None or formid is None:
                         raise ValueError('servername or formid is None')
 
                     file_url = f'https://{servername}.surveycto.com/api/v2/forms/{formid}/submissions/{uuid}/attachments/{file_name}'
 
                     check_if_file_exists_or_download_it(file_name=file_name,
-                                                        files_already_downloaded=files_already_downloaded,
                                                         file_url=file_url,
                                                         username=username,
                                                         password=password,
                                                         dir_path=dir_path,
                                                         dir_box_id=dir_box_id)
+
+def validate_destination(dir_path, dir_box_id):
+    #Validate that either dir_path or dir_box_id
+    return True
 
 def download_attachments(survey_entries_file,
                         attachment_columns,
@@ -316,13 +311,11 @@ def download_attachments(survey_entries_file,
     - encryption_key: path to encryption_key in case surveycto server is encrypted
     '''
 
-    files_already_downloaded = get_list_files(dir_path = dir_path, dir_box_id=dir_box_id)
+    valid_destination = validate_destination(dir_path = dir_path, dir_box_id=dir_box_id)
 
-    if files_already_downloaded is False:
-        print(f'Could not read files from folder destination')
+    if valid_destination is False:
+        print(f'Not valid destination')
         return
-    else:
-        print(f'N files found in folder destination: {len(files_already_downloaded)}')
 
     if get_file_extension(survey_entries_file)=='.csv':
         download_attachments_from_csv(
@@ -330,7 +323,6 @@ def download_attachments(survey_entries_file,
                                 username=username,
                                 password=password,
                                 survey_entries_file=survey_entries_file,
-                                files_already_downloaded=files_already_downloaded,
                                 servername=servername,
                                 formid=formid,
                                 dir_path=dir_path,
@@ -344,7 +336,6 @@ def download_attachments(survey_entries_file,
                                 username=username,
                                 password=password,
                                 survey_entries_file=survey_entries_file,
-                                files_already_downloaded=files_already_downloaded,
                                 dir_path=dir_path,
                                 dir_box_id=dir_box_id,
                                 encryption_key=None)
