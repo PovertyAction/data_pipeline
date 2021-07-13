@@ -7,26 +7,28 @@ This repo provides general scripts to automatize data processing. In particular,
 * Push data to Box using Box API
 * Push data to AWS S3 Buckets
 
-# A note on encryption
+## Setting up your pipeline
+
+Check out `projects_pipelines` directory for examples
+
+## A note on encryption
 
 If you are pushing data to Box or AWS, the data will not pass through Boxcryptor and hence will not be encrypted. It is research teams responsibility to later encrypt data.
 
 An alternative is to set up pipelines that download data directly to boxcryptor folders. For that, you might want to set up a Lightsail VM. More on ## Lightsail section
 
-# A not on size of data download
+## A not on size of data download
 
 Importantly, you might want to consider the size of files you are downloading from SurveyCTO. If they are too big, you might want to use `curl` to download them rather than doing so from `python` scripts.
 
-# A note on .sh files created in windows
+## A note on .sh files created in windows
 
 After creating `.sh` files in windows, run the command `dos2unix your_pipeline.sh` to transform them so they run on linux machines.
 
-# Setting up your pipeline
 
 
 
-
-# Setting up Lightsail VM
+<!-- # Setting up Lightsail VM
 
 1. Launch AWS Lightsail VM
 2. Install boxcryptor
@@ -49,4 +51,4 @@ Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/
 
 git clone https://github.com/PovertyAction/surveycto_data_download.git
 
-7. Install dependencies (requirements.txt)
+7. Install dependencies (requirements.txt) -->
