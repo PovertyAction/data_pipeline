@@ -32,12 +32,9 @@ if __name__=='__main__':
     args = parse_args()
 
     server_name = 'hfslatam'
-
-
-    folder_where_csv_are = './data/hfslatam'
-
-    forms_and_csv = {
-        'hfslatam_560_Chile':'Encuesta BM_Chile.csv',
+    dir_where_to_save = './data/hfslatam'
+    forms_and_json = {
+        'hfslatam_560_Chile':'./data/hfslatam/hfslatam-hfslatam_560_Chile-0_1626200279.json',
         'hfslatam_570_Colombia':'Encuesta_BM Colombia.csv',
         'hfslatam_506_cr':'Encuesta_BM_Costa Rica.csv',
         'hfslatam_503_ES':'Encuesta BM_El Salvador.csv',
@@ -57,29 +54,29 @@ if __name__=='__main__':
     username = args.scto_username
     password = args.scto_password
 
+    use_local_copy_json_entries = False
 
-    for form, csv in forms_and_csv.items():
-
+    for form, json_file in forms_and_json.items():
 
         start = time.time()
 
         print(f'Working on: {form}')
 
-        print(f'Start timestam: {start}')
+        print(f'Start timestamp: {start}')
 
         # #Download survey entries first
-        # if use_local_copy_csv_entries:
-        #     csv_full_path = os.path.join(folder_where_csv_are, csv)
-        # else:
-        print(f'Downloading entries for {form}')
-        json_full_path = surveycto_data_downloader.download_survey_entries(
-                    start_day_timespam=0,
-                    server_name=servername,
-                    form_id=form,
-                    username=username,
-                    password=password,
-                    dir_where_to_save=folder_where_csv_are,
-                    format='json')
+        if use_local_copy_json_entries:
+            json_full_path = json_file
+        else:
+            print(f'Downloading entries for {form}')
+            json_full_path = surveycto_data_downloader.download_survey_entries(
+                        start_day_timespam=0,
+                        server_name=servername,
+                        form_id=form,
+                        username=username,
+                        password=password,
+                        dir_where_to_save=dir_where_to_save,
+                        format='json')
 
         print(f'json for {form} downloaded. Path: {json_full_path}')
 
