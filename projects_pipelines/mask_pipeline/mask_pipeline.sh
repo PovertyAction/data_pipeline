@@ -51,5 +51,5 @@ python3 ../../aws/upload_to_s3.py "${csv_merged_file_path}" "${s3_bucket}"
 python3 ../../aws/upload_to_s3.py "${json_merged_file_path}" "${s3_bucket}"
 
 #9. Generate presigned url to download data
-python3 ../aws/generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.csv"
-python3 ../aws/generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.json"
+python3 ../../aws/generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.csv"
+python3 ../../aws/generate_s3_presigned_url.py "${s3_bucket}" "${server}_${form_id}.json"
