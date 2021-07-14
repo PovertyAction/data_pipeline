@@ -1,7 +1,7 @@
 # import logging
 import boto3
 from botocore.exceptions import ClientError
-from masks_aws_credentials import *
+from aws_credentials import *
 import sys
 import os
 
