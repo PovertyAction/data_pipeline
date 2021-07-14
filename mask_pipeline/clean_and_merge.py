@@ -15,10 +15,7 @@ def validate_inputs(file_a, file_b):
     #Check that files exist
     for file in [file_a, file_b]:
         if not os.path.exists(file):
-            print(f'{file} does not exist')
-            return False
-
-    return True
+            raise Exception(f'{file} does not exist')
 
 
 def replace_values_in_column(df, destiny_column, origin_column, replacements_dict):
@@ -182,8 +179,6 @@ def clean_and_merge_files(parent_file_name, repeatgroup_file_name, merged_file_p
 
             if rows_counter != 0 and rows_counter % n_rows_to_append_per_iteration == 0:
 
-
-
                 add_rows_to_csv(rows = rows_to_append_to_file,
                                 csv_file = merged_file_path,
                                 sorted_columns = merged_file_columns,
@@ -214,9 +209,7 @@ def clean_and_merge_files(parent_file_name, repeatgroup_file_name, merged_file_p
 
 def main(parent_file_name, repeatgroup_file_name, output_file, server_formid):
 
-    valid_inputs = validate_inputs(parent_file_name, repeatgroup_file_name)
-    if not valid_inputs:
-        sys.exit(1)
+    validate_inputs(parent_file_name, repeatgroup_file_name)
 
     clean_and_merge_files(parent_file_name, repeatgroup_file_name, output_file, server_formid)
 
@@ -235,8 +228,3 @@ if __name__ == '__main__':
 
 
     main(arg_parent_file_name, arg_repeatgroup_file_name, arg_output_file, arg_server_formid)
-
-
-# Total rows appended: 173605
-# Finished in: 766.136253118515
-# n_rows_to_append_per_iteration: 5000
