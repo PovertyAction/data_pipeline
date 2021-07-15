@@ -21,7 +21,7 @@ def upload_file(file_name, bucket):
         )
 
     try:
-        response = s3_client.upload_file(file_name, bucket, os.path.basename(file_name))
+        response = s3_client.upload_file(file_name, bucket, file_name)
     except ClientError as e:
         raise ValueError(e)
     return True
