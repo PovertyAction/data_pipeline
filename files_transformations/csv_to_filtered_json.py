@@ -38,7 +38,7 @@ def main(csv_file, json_file, selected_keys):
                 else:
                     f.write(',\n')
 
-                filtered_row = filter_row(row)
+                filtered_row = filter_row(row, selected_keys)
                 json.dump(filtered_row, f)
 
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     arg_selected_keys = sys.argv[3].split(',')
 
-    
+
 
     print('Running csv_to_json.py with following parameters')
     print(f'csv_file: {arg_csv_file}')
