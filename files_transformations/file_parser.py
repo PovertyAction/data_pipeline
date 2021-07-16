@@ -26,15 +26,13 @@ def add_rows_to_csv(rows, csv_file, sorted_columns, include_header):
 
 
 
-def parse_json_to_csv_with_keys(json_filename, json_keys, dir_path):
+def parse_json_to_csv_with_keys(json_filename, json_keys, OUTPUT_FILE):
 
     df = pd.DataFrame()
     #If output file exists, delete it
-    OUTPUT_FILE = os.path.join(dir_path, os.path.basename(json_filename).split('.')[0]+'.csv')
-    TEMP_OUTPUT_FILE = os.path.basename(json_filename).split('.')[0]+'.csv'
-    if os.path.exists(TEMP_OUTPUT_FILE):
-        print(f'Removing old version of {TEMP_OUTPUT_FILE}')
-        os.remove(TEMP_OUTPUT_FILE)
+    if os.path.exists(OUTPUT_FILE):
+        print(f'Removing old version of {OUTPUT_FILE}')
+        os.remove(OUTPUT_FILE)
 
     with open(json_filename, 'rb') as input_file:
         # load json iteratively
@@ -63,7 +61,7 @@ def parse_json_to_csv_with_keys(json_filename, json_keys, dir_path):
                     if rows_counter != 0 and rows_counter % n_rows_to_append_at_a_time == 0:
 
                         add_rows_to_csv(rows = temp_list_rows,
-                                        csv_file = TEMP_OUTPUT_FILE,
+                                        csv_file = OUTPUT_FILE,
                                         sorted_columns = json_keys,
                                         include_header = rows_counter == n_rows_to_append_at_a_time)
 
@@ -83,29 +81,25 @@ def parse_json_to_csv_with_keys(json_filename, json_keys, dir_path):
         #Once finished, there might still be rows in temp_list_rows that we need to add to the .csv
         if len(temp_list_rows)>0:
             add_rows_to_csv(rows = temp_list_rows,
-                            csv_file = TEMP_OUTPUT_FILE,
+                            csv_file = OUTPUT_FILE,
                             sorted_columns = json_keys,
                             include_header = rows_counter < n_rows_to_append_at_a_time)
 
             print(f'Total rows appended: {rows_counter}')
             print('%%%%%%%%%%')
-        print(f'TEMP_OUTPUT_FILE {TEMP_OUTPUT_FILE}')
+        print(f'OUTPUT_FILE {OUTPUT_FILE}')
 
-        #Copy TEMP_OUTPUT_FILE to OUTPUT_FILE
-        copyfile(TEMP_OUTPUT_FILE, OUTPUT_FILE)
-        os.remove(TEMP_OUTPUT_FILE)
 
-def parse_json_to_csv(json_file, dir_path):
+
+def parse_json_to_csv(json_file, csv_file):
     json_keys = get_json_keys(json_file)
     print(f'Got json_keys, its {len(json_keys)} of them!')
-    parse_json_to_csv_with_keys(json_file, json_keys, dir_path)
+    parse_json_to_csv_with_keys(json_file, json_keys, csv_file)
 
 if __name__ == '__main__':
     json_file = sys.argv[1]
-    dir_path = sys.argv[2]
+    csv_file = sys.argv[2]
     if not os.path.exists(json_file):
         print(f'{json_file} does not exist')
-    elif not os.path.isdir(dir_path):
-        print(f'{dir_path} does not exist')
     else:
-        parse_json_to_csv(json_file, dir_path)
+        parse_json_to_csv(json_file, csv_file)
