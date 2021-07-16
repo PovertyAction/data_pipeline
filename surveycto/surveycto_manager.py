@@ -343,30 +343,3 @@ def download_attachments(survey_entries_file,
                                 dir_path=dir_path,
                                 dir_box_id=dir_box_id,
                                 encryption_key=None)
-
-
-
-if __name__ == '__main__':
-    print(sys.argv)
-    survey_entries_file_name = sys.argv[1]
-    media_path_destination = sys.argv[2]
-    username = sys.argv[3]
-    password=sys.argv[4]
-    attachment_columns = sys.argv[5].split(',')
-
-    if len(sys.argv)>6:
-        encryption_key = sys.argv[6]
-    else:
-        encryption_key = False
-
-    print(f'attachment_columns: {attachment_columns}')
-    download_attachments(
-        json_file = survey_entries_file_name,
-        attachment_columns = attachment_columns,
-        dir_path_where_save= media_path_destination,
-        username=username,
-        password=password,
-        encryption_key=encryption_key)
-
-
-# python .\surveycto_data_downloader.py .\data\labelremittance_covid_endline_household\labelremittance_covid_endline_household_0_1620760470.json "X:\Box\CP_Projects\IPA_PHL_Projects\Labeled Remittances\COVID study\Data\endline_all\media" "falamos@poverty-action.org" "password" "audio_audit_survey,comments,text_audit,sstrm_conversation,sstrm_sound_level" "X:\Box\CP_Projects\IPA_PHL_Projects\Labeled Remittances\COVID study\Questionnaire & programming\Programming\key\covid_endline_PRIVATEDONOTSHARE.pem"
