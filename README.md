@@ -9,7 +9,19 @@ This repo provides general scripts to automatize data processing. In particular,
 
 ## Setting up your pipeline
 
-Check out `projects_pipelines` directory for examples
+Check out `projects_pipelines` directory for examples.
+In particular, `template_pipeline\template_pipeline.sh` has all possibilities inclueded.
+
+### Inputs needed to run your pipeline
+
+*server name
+*form(s) name(s)
+*column names of files with attachments
+*destiny where to save files (either box drive path, box folder id, or aws bucket)
+*surveycto username and password
+
+
+
 
 ## A note on encryption
 
@@ -25,6 +37,7 @@ Importantly, you might want to consider the size of files you are downloading fr
 
 After creating `.sh` files in windows, run the command `dos2unix your_pipeline.sh` to transform them so they run on linux machines.
 
+Remember running `chmod +x pipeline.sh` to be able to run it as an executable.
 
 
 

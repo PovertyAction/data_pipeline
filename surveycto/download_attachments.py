@@ -1,23 +1,18 @@
 import argparse
 import sys
+import os
 sys.path.append(os.path.dirname(__file__))
 import surveycto_manager
-
-
 
 def parse_args():
     """ Parse command line arguments.
     """
     parser = argparse.ArgumentParser(description="Surveycto attachments downloader")
 
-   survey_entries_file_name = sys.argv[1]
-   attachment_columns = sys.argv[2].split(',')
-   username = sys.argv[3]
-   password=sys.argv[4]
-   encryption_key = sys.argv[6]
-   encryption_key=encryption_key
-   dir_path=None,
-   dir_box_id=None,
+    def nullable_string(val):
+        if not val:
+            return None
+        return val
 
     #Add arguments
     for (argument, arg_help, arg_type, arg_required) in [
@@ -34,7 +29,7 @@ def parse_args():
             help=arg_help,
             default=None,
             required=arg_required,
-            type=arg_type
+            type=nullable_string
         )
 
     return parser.parse_args()
