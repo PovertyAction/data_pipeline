@@ -41,9 +41,11 @@ python3 masks_clean_and_merge.py "${parent_file_name}" "${repeatgroup_file_name}
 
 #7. Transform all bangladesh csv files to one json
 json_merged_file_path="${outputs_folder}/${server}_${form_id}.json"
-selected_keys="status-mask,status-distance,status-agegroup,status-gender,timestamp,uid,intro_group-area,district_group-ward_village,gps-Latitude,gps-Longitude,gps-Accuracy,intro_group-division,intro_group-district,intro_group-upazila,intro_group-union"
 
-python3 ../../files_transformations/csv_to_filtered_json.py "${csv_merged_file_path}" "${json_merged_file_path}" "${selected_keys}"
+dncc_selected_keys="status-mask,status-distance,status-agegroup,status-gender,timestamp,uid,intro_group-area,district_group-ward_village,gps-Latitude,gps-Longitude,gps-Accuracy,intro_group-division,intro_group-district,intro_group-upazila,intro_group-union"
+brac_selected_keys="status-mask,status-distance,status-agegroup,status-gender,timestamp,uid,district_group-ward_village,gps-Latitude,gps-Longitude,gps-Accuracy"
+
+python3 ../../files_transformations/csv_to_filtered_json.py "${csv_merged_file_path}" "${json_merged_file_path}" "${brac_selected_keys}"
 
 #8. Upload csv and json to aws s3 bucket
 s3_bucket="mask-monitoring-project"
