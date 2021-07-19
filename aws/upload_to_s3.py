@@ -5,7 +5,7 @@ from aws_credentials import *
 import sys
 import os
 
-def upload_file(file_name, bucket):
+def upload_file(file_name, bucket, file_key=None):
     """Upload a file to an S3 bucket
 
     :param file_name: File to upload
@@ -21,7 +21,11 @@ def upload_file(file_name, bucket):
         )
 
     try:
-        response = s3_client.upload_file(file_name, bucket, file_name)
+        #If file_key is provided, use it, else use same file_name
+        if file_key:
+            response = s3_client.upload_file(file_name, bucket, file_key)
+        else:
+            response = s3_client.upload_file(file_name, bucket, file_name)
     except ClientError as e:
         raise ValueError(e)
     return True
