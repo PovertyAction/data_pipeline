@@ -23,7 +23,8 @@ def parse_args():
            ('--encryption_key','path to encryption_key', False),
            ('--dest_path','dest_path', False),
            ('--dest_box_id','dest_box_id', False),
-           ('--s3_bucket','dest_box_id', False)]:
+           ('--s3_bucket','s3_bucket', False),
+           ('--s3_bucket_path_media','s3_bucket_path_media', False)]:
 
         parser.add_argument(
             argument,
@@ -48,5 +49,7 @@ if __name__ == '__main__':
         password=args.password,
         encryption_key=args.encryption_key,
         dir_path=args.dest_path,
-        dir_box_id=args.dest_box_id
+        dir_box_id=args.dest_box_id,
+        s3_bucket=args.s3_bucket,
+        s3_bucket_path_media=args.s3_bucket_path_media
     )

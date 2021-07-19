@@ -53,7 +53,6 @@ hfs:
 --columns_with_attachments "audit,text_audit" \
 --media_box_path "./box_path_simulation/media" \
 --media_box_folder_id 141540328939
-
 '
 
 
@@ -159,7 +158,11 @@ json_file_path="data/hfslatam/hfslatam_560_Chile/hfslatam_hfslatam_560_Chile_0_1
 # 10.Download attachments (also to box path, box directly or aws)
 if ! [ -z "${columns_with_attachments}" ];
 then
-  python3 ../../surveycto/download_attachments.py --survey_file "${json_file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}"
+
+  #Create key where to save media files in s3 bucket
+  s3_bucket_path_media="${outputs_folder}/media"
+
+  python3 ../../surveycto/download_attachments.py --survey_file "${json_file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
   echo "Attachements downloaded"
   echo ''
 fi

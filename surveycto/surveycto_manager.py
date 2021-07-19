@@ -10,6 +10,9 @@ import csv
 sys.path.append(os.path.join(os.path.dirname(__file__),'../box'))
 import box_manager
 
+sys.path.append(os.path.join(os.path.dirname(__file__),'../aws'))
+import upload_to_s3
+
 def get_local_list_files(dir_path):
 
     if os.path.isdir(dir_path):
@@ -81,6 +84,8 @@ def download_file_from_surveycto(file_url,
                                 file_name,
                                 dir_path_where_to_save=None,
                                 box_folder_id=None,
+                                s3_bucket=None,
+                                s3_bucket_path_media=None,
                                 encryption_key=False):
     '''
     Uses surveycto api to download file to local or to box
@@ -120,11 +125,18 @@ def download_file_from_surveycto(file_url,
     f.write(data)
     f.close()
 
-    #If file was supposed to be saved locally,return
+    #If file was supposed to be saved locally, it is already saved in destiny
     if dir_path_where_to_save:
-        return
+        pass
 
-    #If file was supposed to be saved in box directly, push to box and delete local copy
+    #Save in aws
+    if s3_bucket:
+        upload_to_s3.upload_file(
+            file_name = file_path,
+            bucket = s3_bucket,
+            file_key=s3_bucket_path_media+'/'+file_name)
+
+    #Save in box directly and delete local copy
     if box_folder_id:
 
        #Upload file to box
@@ -182,12 +194,14 @@ def check_if_file_exists_or_download_it(file_name,
                                         password,
                                         dir_path=None,
                                         dir_box_id=None,
+                                        s3_bucket=None,
+                                        s3_bucket_path_media=None,
                                         encryption_key=None):
 
     #Check if file has already been downloaded. If it does, return.
 
     if file_already_downloaded(file_name, dir_path, dir_box_id):
-        print(f'{file_name} already downloaded')
+        print(f'{file_name} already downloaded in Box')
         print('')
         return True
 
@@ -201,6 +215,8 @@ def check_if_file_exists_or_download_it(file_name,
             file_name=file_name,
             dir_path_where_to_save=dir_path,
             box_folder_id=dir_box_id,
+            s3_bucket=s3_bucket,
+            s3_bucket_path_media=s3_bucket_path_media,
             encryption_key=encryption_key)
 
 
@@ -213,6 +229,8 @@ def download_attachments_from_json(
                         formid=None,
                         dir_path=None,
                         dir_box_id=None,
+                        s3_bucket=None,
+                        s3_bucket_path_media=None,
                         encryption_key=None):
 
     with open(survey_entries_file, 'rb') as input_file:
@@ -242,6 +260,8 @@ def download_attachments_from_json(
                                                         password=password,
                                                         dir_path=dir_path,
                                                         dir_box_id=dir_box_id,
+                                                        s3_bucket=s3_bucket,
+                                                        s3_bucket_path_media=s3_bucket_path_media,
                                                         encryption_key=encryption_key)
 
 def download_attachments_from_csv(attachment_columns,
@@ -307,6 +327,8 @@ def download_attachments(survey_entries_file,
                         formid=None,
                         dir_path=None,
                         dir_box_id=None,
+                        s3_bucket=None,
+                        s3_bucket_path_media=None,
                         encryption_key=None):
     '''
     Download attachments for given survey entries.
@@ -342,4 +364,6 @@ def download_attachments(survey_entries_file,
                                 survey_entries_file=survey_entries_file,
                                 dir_path=dir_path,
                                 dir_box_id=dir_box_id,
+                                s3_bucket=s3_bucket,
+                                s3_bucket_path_media=s3_bucket_path_media,
                                 encryption_key=encryption_key)
