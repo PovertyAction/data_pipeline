@@ -15,14 +15,15 @@ def parse_args():
         return val
 
     #Add arguments
-    for (argument, arg_help, arg_type, arg_required) in [
-           ('--survey_file', 'survey_file', str, True),
-           ('--attachment_columns', 'attachment_columns comma separated', str, True),
-           ('--username', 'surveycto username',str, True),
-           ('--password','surveycto password', str, True),
-           ('--encryption_key','path to encryption_key',str, False),
-           ('--dest_path','dest_path',str, False),
-           ('--dest_box_id','dest_box_id',str, False)]:
+    for (argument, arg_help, arg_required) in [
+           ('--survey_file', 'survey_file', True),
+           ('--attachment_columns', 'attachment_columns comma separated', True),
+           ('--username', 'surveycto username', True),
+           ('--password','surveycto password', True),
+           ('--encryption_key','path to encryption_key', False),
+           ('--dest_path','dest_path', False),
+           ('--dest_box_id','dest_box_id', False),
+           ('--s3_bucket','dest_box_id', False)]:
 
         parser.add_argument(
             argument,
@@ -45,7 +46,7 @@ if __name__ == '__main__':
         attachment_columns=args.attachment_columns,
         username=args.username,
         password=args.password,
-        encryption_key=argss.encryption_key,
+        encryption_key=args.encryption_key,
         dir_path=args.dest_path,
         dir_box_id=args.dest_box_id
     )

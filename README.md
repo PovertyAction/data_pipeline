@@ -3,7 +3,7 @@
 This repo provides general scripts to automatize data processing. In particular, we provide modules to:
 
 * Download data using SurveyCTO API
-* Cleaning and merging data
+* Cleaning and transforming data
 * Push data to Box using Box API
 * Push data to AWS S3 Buckets
 
@@ -17,21 +17,18 @@ In particular, `template_pipeline\template_pipeline.sh` has all possibilities in
 *server name
 *form(s) name(s)
 *column names of files with attachments
-*destiny where to save files (either box drive path, box folder id, or aws bucket)
+*destiny where to save files (either box drive path, box folder id, and/or aws bucket)
 *surveycto username and password
 
-
-
+If you want to save files in box, you must share the folder with ipa_box_service_account@poverty-action.org
 
 ## A note on encryption
 
 If you are pushing data to Box or AWS, the data will not pass through Boxcryptor and hence will not be encrypted. It is research teams responsibility to later encrypt data.
 
-An alternative is to set up pipelines that download data directly to boxcryptor folders. For that, you might want to set up a Lightsail VM. More on ## Lightsail section
-
 ## A not on size of data download
 
-Importantly, you might want to consider the size of files you are downloading from SurveyCTO. If they are too big, you might want to use `curl` to download them rather than doing so from `python` scripts.
+Importantly, you will notice that our pipeline uses the `curl` command to download data. This is preffered over other options that download data using `python`, `stata` or others, given that if data is too big, these programs will run out of memory.
 
 ## A note on .sh files created in windows
 
@@ -42,6 +39,8 @@ Remember running `chmod +x pipeline.sh` to be able to run it as an executable.
 
 
 <!-- # Setting up Lightsail VM
+
+An alternative is to set up pipelines that download data directly to boxcryptor folders. For that, you might want to set up a Lightsail VM. More on ## Lightsail section
 
 1. Launch AWS Lightsail VM
 2. Install boxcryptor

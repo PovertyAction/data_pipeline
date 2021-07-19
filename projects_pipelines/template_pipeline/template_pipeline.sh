@@ -3,29 +3,56 @@
 : '
 
 How to run:
-./template_pipeline.sh \
---server servename \
---form_id formname \
---start_timestamp 0 \
---username "username" \
---password "password" \
---columns_with_attachments "colA,colB"
---outputs_path "/mnt/x/Box/CP_Projects/IPA_PHL_Projects/Labeled Remittances/COVID study/Data/endline_all"
---box_folder_id "12345"
---server_key "/mnt/x/Box/CP_Projects/IPA_PHL_Projects/Labeled Remittances/COVID study/Questionnaire & programming/Programming/key/covid_endline_PRIVATEDONOTSHARE.pem"
---s3_bucket s3bucket
 
+Masks:
 
 ./template_pipeline.sh \
 --server bdmaskrct \
 --form_id mask_monitoring_form_bn \
 --start_timestamp 1626295923 \
---username "username@poverty-action.org" \
---password "password" \
+--username "mali@poverty-action.org" \
+--password "pass!" \
 --transform_to_csv "True" \
 --box_path "./box_path_simulation/" \
 --box_folder_id 139653613903 \
---s3_bucket mask-monitoring-project
+--s3_bucket mask-monitoring-project \
+--columns_with_attachments "colA,colB" \
+--media_box_path "./box_path_simulation/media" \
+--media_box_folder_id 139653613903 \
+
+
+Labelremittance:
+
+./template_pipeline.sh \
+--server labelremittance \
+--form_id covid_endline_household \
+--start_timestamp 0 \
+--username "falamos@poverty-action.org" \
+--password "pass" \
+--transform_to_csv "False" \
+--box_path "./box_path_simulation/" \
+--box_folder_id 141543819347 \
+--s3_bucket mask-monitoring-project \
+--columns_with_attachments "audio_audit_survey,comments,text_audit,sstrm_conversation,sstrm_sound_level" \
+--media_box_path "./box_path_simulation/media" \
+--media_box_folder_id 141540328939 \
+--server_key "path/to/key/key.pem"
+
+hfs:
+
+./template_pipeline.sh \
+--server hfslatam \
+--form_id hfslatam_560_Chile \
+--start_timestamp 0 \
+--username "falamos@poverty-action.org" \
+--password "pass" \
+--transform_to_csv "True" \
+--box_path "./box_path_simulation/" \
+--box_folder_id 141543819347 \
+--s3_bucket mask-monitoring-project \
+--columns_with_attachments "audit,text_audit" \
+--media_box_path "./box_path_simulation/media" \
+--media_box_folder_id 141540328939
 
 '
 
@@ -78,9 +105,9 @@ echo ''
 first_8_chr=$(head -c 8 ${json_file_path})
 error_str='{"error"'
 if [ "$first_8_chr" = "$error_str" ]; then
-    echo "Error when downloading database, finishing pipeline"
-    rm ${json_file_path}
-    exit 0
+  echo "Error when downloading database, finishing pipeline"
+  rm ${json_file_path}
+  exit 0
 fi
 
 #6.Transform to .csv.
@@ -126,10 +153,13 @@ do
     echo ''
   fi
 done
-#
-# #10.Download attachments. Check if server key was provided
-# media_folder="${outputs_path}/media"
-# mkdir "${media_folder}"
-#
-# #!We need to verify here that download_attachments assigns None to args parse values if they are empty here
-# python3 ../../surveycto/download_attachments --survey_file "${json_file_path}" --attachment_columns "${columns_with_attachments} --username ${username} --password "${password}" --encryption_key "${server_key}" --dest_path "${media_folder}" --dest_box_id "${box_folder_id}"
+
+json_file_path="data/hfslatam/hfslatam_560_Chile/hfslatam_hfslatam_560_Chile_0_1626731876.json"
+
+# 10.Download attachments (also to box path, box directly or aws)
+if ! [ -z "${columns_with_attachments}" ];
+then
+  python3 ../../surveycto/download_attachments.py --survey_file "${json_file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}"
+  echo "Attachements downloaded"
+  echo ''
+fi

@@ -32,7 +32,6 @@ def get_list_files(auth_method, box_folder_id):
 def get_file_extension(file_path, include_dot):
     split_tup = os.path.splitext(file_path)
     file_extension = split_tup[1]
-    print(file_extension)
 
     if include_dot:
         return file_extension
@@ -49,7 +48,7 @@ def check_file_exists_in_folder(auth_method, box_folder_id, file_name):
     box_folder = client.folder(folder_id=box_folder_id)
 
     items = client.search().query(query=file_name,
-                                    limit=1,
+                                    limit=10,
                                     file_extensions=[get_file_extension(file_name, include_dot=False)],
                                     ancestor_folders=[box_folder],
                                     type='file',
@@ -125,4 +124,4 @@ def upload_in_chuncks(box_folder_id, file_path):
 
 if __name__ == '__main__':
 
-    print(check_file_exists_in_folder(auth_method='jwt', box_folder_id='139879419741', file_name='AA_5c6ca838-4a3c-459f-a4c3-5f2df9665d89_telefono1.m4a'))
+    print(check_file_exists_in_folder(auth_method='jwt', box_folder_id='141540328939', file_name='AA_5c6ca838-4a3c-459f-a4c3-5f2df9665d89_telefono1.m4a'))

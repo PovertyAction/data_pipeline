@@ -165,11 +165,12 @@ def get_file_extension(file_path):
 def file_already_downloaded(file_name, dir_path=None, dir_box_id=None):
 
     if dir_path:
-        return os.path.isfile(file_name)
+        return os.path.isfile(os.path.join(dir_path,file_name))
 
     elif dir_box_id:
         try:
             file_exists = box_manager.check_file_exists_in_folder('jwt', dir_box_id, file_name)
+            print(f'file_exists: {file_exists}')
             return file_exists
         except Exception as e:
             raise Exception(str(e))
@@ -202,7 +203,6 @@ def check_if_file_exists_or_download_it(file_name,
             box_folder_id=dir_box_id,
             encryption_key=encryption_key)
 
-    # sys.exit(1)
 
 def download_attachments_from_json(
                         attachment_columns,
@@ -241,7 +241,8 @@ def download_attachments_from_json(
                                                         username=username,
                                                         password=password,
                                                         dir_path=dir_path,
-                                                        dir_box_id=dir_box_id)
+                                                        dir_box_id=dir_box_id,
+                                                        encryption_key=encryption_key)
 
 def download_attachments_from_csv(attachment_columns,
                         username,
@@ -289,11 +290,14 @@ def download_attachments_from_csv(attachment_columns,
                                                         username=username,
                                                         password=password,
                                                         dir_path=dir_path,
-                                                        dir_box_id=dir_box_id)
+                                                        dir_box_id=dir_box_id,
+                                                        encryption_key=encryption_key)
 
 def validate_destination(dir_path, dir_box_id):
-    #Validate that either dir_path or dir_box_id
+    #Validate that either dir_path or dir_box_id exist
     return True
+
+    #if error raise Exception
 
 def download_attachments(survey_entries_file,
                         attachment_columns,
@@ -315,11 +319,7 @@ def download_attachments(survey_entries_file,
     - encryption_key: path to encryption_key in case surveycto server is encrypted
     '''
 
-    valid_destination = validate_destination(dir_path = dir_path, dir_box_id=dir_box_id)
-
-    if valid_destination is False:
-        print(f'Not valid destination')
-        return
+    validate_destination(dir_path = dir_path, dir_box_id=dir_box_id)
 
     if get_file_extension(survey_entries_file)=='.csv':
         download_attachments_from_csv(
@@ -331,7 +331,7 @@ def download_attachments(survey_entries_file,
                                 formid=formid,
                                 dir_path=dir_path,
                                 dir_box_id=dir_box_id,
-                                encryption_key=None)
+                                encryption_key=encryption_key)
 
 
     if get_file_extension(survey_entries_file)=='.json':
@@ -342,4 +342,4 @@ def download_attachments(survey_entries_file,
                                 survey_entries_file=survey_entries_file,
                                 dir_path=dir_path,
                                 dir_box_id=dir_box_id,
-                                encryption_key=None)
+                                encryption_key=encryption_key)
