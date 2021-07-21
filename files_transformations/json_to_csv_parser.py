@@ -85,8 +85,8 @@ def parse_json_to_csv_with_keys(json_filename, json_keys, OUTPUT_FILE):
                     #Empty temp list of temp_rows
                     temp_list_rows = []
 
-                    print(f'Total rows appended: {rows_counter}')
-                    print('%%%%%%%%%%')
+                    # print(f'Total rows appended: {rows_counter}')
+                    # print('%%%%%%%%%%')
 
         #Once finished, there might still be rows in temp_list_rows that we need to add to the .csv
         if len(temp_list_rows)>0:
@@ -95,8 +95,9 @@ def parse_json_to_csv_with_keys(json_filename, json_keys, OUTPUT_FILE):
                             sorted_columns = json_keys,
                             include_header = rows_counter < n_rows_to_append_at_a_time)
 
-            print(f'Total rows appended: {rows_counter}')
-            print('%%%%%%%%%%')
+            # print(f'Total rows appended: {rows_counter}')
+            # print('%%%%%%%%%%')
+        print(f'Total rows appended: {rows_counter}')
         print(f'OUTPUT_FILE {OUTPUT_FILE}')
 
 
