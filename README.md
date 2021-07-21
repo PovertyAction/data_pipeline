@@ -9,8 +9,7 @@ This repo provides general scripts to automatize data processing. In particular,
 
 ## Setting up your pipeline
 
-Check out `projects_pipelines` directory for examples.
-In particular, `template_pipeline\template_pipeline.sh` has all possibilities inclueded.
+Check out `projects_pipelines` directory for examples. In particular, `template_pipeline\template_pipeline.sh` has all possibilities included.
 
 ### Inputs needed to run your pipeline
 

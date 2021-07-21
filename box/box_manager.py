@@ -38,6 +38,15 @@ def get_file_extension(file_path, include_dot):
     else:
         return file_extension[1:]
 
+def download_file(file_id, file_path, auth_method='jwt'):
+
+    client = get_box_client(auth_method)
+
+    # Write the Box file contents to disk
+    output_file = open(file_path, 'wb')
+    client.file(file_id).download_to(output_file)
+
+
 def check_file_exists_in_folder(auth_method, box_folder_id, file_name):
 
     client = get_box_client(auth_method)
@@ -102,24 +111,6 @@ def get_box_client(authentication_method):
         #Reference: https://github.com/box/box-python-sdk/blob/main/docs/usage/authentication.md#server-auth-with-jwt
         service_user = client.user(box_credentials.get_ipa_box_account_user_id())
         return client.as_user(service_user)
-
-
-#Reference:
-#https://developer.box.com/guides/uploads/chunked/#:~:text=The%20Chunked%20Upload%20API%20provides,a%20failed%20request%20more%20reliably.
-#https://developer.box.com/guides/uploads/chunked/with-sdks/
-
-#https://github.com/box/box-python-sdk/blob/master/docs/usage/files.md#chunked-upload
-def upload_in_chuncks(box_folder_id, file_path):
-    file_id = ''
-    chunked_uploader = client.folder(box_folder_id).get_chunked_uploader(file_path) #.file(folder_id)??
-
-    try:
-        uploaded_file = chunked_uploader.start()
-    except:
-        uploaded_file = chunked_uploader.resume()
-
-    print('File "{0}" uploaded to Box with file ID {1}'.format(uploaded_file.name, uploaded_file.id))
-
 
 
 if __name__ == '__main__':
