@@ -7,33 +7,57 @@ This repo provides general scripts to automatize data processing. In particular,
 * Push data to Box using Box API
 * Push data to AWS S3 Buckets
 
+In order to run this modules in the correct order, this repo also provides `.sh` template files (reffered to as pipelines) that call the different modules according to projects needs. `.sh` are also simple to schedule in a server machine so that they run periodically.
+
 ## Setting up your pipeline
 
-Check out `projects_pipelines` directory for examples. In particular, `template_pipeline\template_pipeline.sh` has all possibilities included.
+Check out `projects_pipelines\template_pipeline\template_pipeline.sh` to start your new pipeline and decide what to include. You can also check other pipelines under the `projects_pipelines` to look for other examples.
+
+### Setup needed
+
+Surveycto server must be shared with `researchsupport@poverty-action.org`, and box folders where data will be kept must be shared with `ipa_box_service_account@poverty-action.org`
 
 ### Inputs needed to run your pipeline
 
-*server name
-*form(s) name(s)
-*column names of files with attachments
-*destiny where to save files (either box drive path, box folder id, and/or aws bucket)
-*surveycto username and password
+* server name
+* form(s) name(s)
+* surveycto username and password
+* destiny where to save files (either box drive path, box folder id, and/or aws bucket)
+* column names that have attachments (case we want to download attachments too)
+* server key box file id
 
-If you want to save files in box, you must share the folder with ipa_box_service_account@poverty-action.org
+### How to run periodically
 
-## A note on encryption
+Setup [cron](https://opensource.com/article/17/11/how-use-cron-linux) to run your `.sh` pipeline as periodically as you want.
 
-If you are pushing data to Box or AWS, the data will not pass through Boxcryptor and hence will not be encrypted. It is research teams responsibility to later encrypt data.
+For example, run
 
-## A not on size of data download
+```
+crontab -e
 
-Importantly, you will notice that our pipeline uses the `curl` command to download data. This is preffered over other options that download data using `python`, `stata` or others, given that if data is too big, these programs will run out of memory.
+#Write down in the end of the crontab file the following line:
+0 0 * * * /home/ubuntu/data-pipeline/projects-pipeline/your_project/your_project_pipeline.sh >> /home/ubuntu/data-pipeline/projects-pipeline/your_project/your_project_pipeline_log.txt
+```
+You can check what has crontab run with:
+```
+tail /var/log/syslog
+```
+Remember to use absolute routes
 
-## A note on .sh files created in windows
+### A note on .sh pipeline files created in windows
 
 After creating `.sh` files in windows, run the command `dos2unix your_pipeline.sh` to transform them so they run on linux machines.
 
-Remember running `chmod +x pipeline.sh` to be able to run it as an executable.
+Also remember running `chmod +x pipeline.sh` to be able to run it as an executable.
+
+## A note on encryption
+
+If you are pushing data to Box directly or AWS, the data will not pass through Boxcryptor and hence will not be encrypted. It is research teams responsibility to later encrypt data.
+
+## A note on size of data download
+
+Importantly, you will notice that our pipeline uses the `curl` command to download data. This is preferred over other options that download data using `python`, `stata` or others, given that if data is too big, these programs will run out of memory.
+
 
 
 
