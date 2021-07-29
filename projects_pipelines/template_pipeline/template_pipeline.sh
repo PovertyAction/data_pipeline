@@ -7,7 +7,7 @@ How to run:
 ./template_pipeline.sh \
 --server bdmaskrct \
 --download_wide_csv True \
---download_wide_json True \
+--download_wide_json False \
 --form_id mask_monitoring_form_bn \
 --start_timestamp 0 \
 --username "mali@poverty-action.org" \
@@ -99,36 +99,42 @@ download_survey_entries()
     rm ${file_path}
     exit 0
   fi
-
-  return ${file_path}
 }
 
 #Download survey entries
+FILES_DOWNLOADED=""
 if [ "$download_wide_csv" == "True" ];
 then
-    file_path= download_survey_entries csv $server_key
-    FILES_TO_UPLOAD=$(echo "$file_path")
+    download_survey_entries csv $server_key
+    FILES_DOWNLOADED=$(echo "$file_path")
 fi
 
 if [ "$download_wide_json" == "True" ];
 then
-    file_path= download_survey_entries json $server_key
+    download_survey_entries json $server_key
 
-    #Transform to .csv.
-    csv_file_path= python3 ../../files_transformations/json_to_csv_parser.py "${file_path}"
-    echo "csv created"
-    echo ''
-    FILES_TO_UPLOAD=$(echo "$file_path $csv_file_path")
-else
-    echo 'not downloading json'
+    #Add new file path to FILES_DOWNLOADED LIST
+    if [ "$FILES_DOWNLOADED" == "" ];
+    then
+      FILES_DOWNLOADED=$(echo "$file_path")
+    else
+      FILES_DOWNLOADED+=$(echo " $file_path")
+    fi
+
+    #Transform to csv deprecated, given that users can download .csv directly
+    # #Transform to .csv.
+    # if [ "$transform_json_to_csv" == "True" ];
+    # then
+    #   csv_file_path= python3 ../../files_transformations/json_to_csv_parser.py "${file_path}"
+    #   echo "csv created"
+    #   echo ''
+    # fi
 fi
-
-echo "FILES_TO_UPLOAD: ${FILES_TO_UPLOAD}"
-echo ''
-
+echo 'Survey entried downloaded'
+echo "$FILES_DOWNLOADED"
 
 #Upload every output file to box drive, box cloud or aws
-for FILE in ${FILES_TO_UPLOAD}
+for FILE in ${FILES_DOWNLOADED}
 do
   #Copy file to box_path if box_path is not empty
   if ! [ -z "${box_path}" ];
@@ -155,14 +161,14 @@ do
   fi
 done
 
-#Download attachments (also to box path, box directly or aws)
-if ! [ -z "${columns_with_attachments}" ];
-then
-
-  #Create key where to save media files in s3 bucket
-  s3_bucket_path_media="${outputs_folder}/media"
-
-  python3 ../../surveycto/download_attachments.py --survey_file "${file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
-  echo "Attachements downloaded"
-  echo ''
-fi
+# #Download attachments (also to box path, box directly or aws)
+# if ! [ -z "${columns_with_attachments}" ];
+# then
+#
+#   #Create key where to save media files in s3 bucket
+#   s3_bucket_path_media="${outputs_folder}/media"
+#
+#   python3 ../../surveycto/download_attachments.py --survey_file "${file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
+#   echo "Attachements downloaded"
+#   echo ''
+# fi
