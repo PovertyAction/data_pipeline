@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     surveycto_manager.download_attachments(
         survey_entries_file=args.survey_file,
-        attachment_columns=args.attachment_columns,
+        attachment_columns=args.attachment_columns.split(','),
         username=args.username,
         password=args.password,
         encryption_key=args.encryption_key,

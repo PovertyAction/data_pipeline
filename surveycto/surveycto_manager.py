@@ -268,8 +268,6 @@ def download_attachments_from_csv(attachment_columns,
                         username,
                         password,
                         survey_entries_file,
-                        servername,
-                        formid,
                         dir_path=None,
                         dir_box_id=None, encryption_key=None):
 
@@ -289,21 +287,18 @@ def download_attachments_from_csv(attachment_columns,
                     #Get c index in list
                     c_index = header.index(c)
 
-                    #Get file_name (extract /media/ from path)
-                    file_name = ntpath.basename(row[c_index])
+                    #Get file_url
+                    #Expecting something of the shape:
+                    #https://hfslatam.surveycto.com/view/submission-attachment/TA_5c6ca838-4a3c-459f-a4c3-5f2df9665d89.csv?blobKey=13320
+                    file_url = row[c_index]
 
-                    #Check if file_name is empty, skip if thats the case
-                    if file_name is None or file_name =='':
-                        print(f'file_name is empty for {c}')
+                    #Check if file_url is empty, skip if thats the case
+                    if file_url is None or file_url =='':
+                        print(f'file_url is empty for {c}')
                         continue
 
-                    #Build file_url
-                    uuid = row[header.index('KEY')]
-
-                    if servername is None or formid is None:
-                        raise ValueError('servername or formid is None')
-
-                    file_url = f'https://{servername}.surveycto.com/api/v2/forms/{formid}/submissions/{uuid}/attachments/{file_name}'
+                    #Get file_name (extract /media/ from path)
+                    file_name = ntpath.basename(row[c_index]).split('?')[0]
 
                     check_if_file_exists_or_download_it(file_name=file_name,
                                                         file_url=file_url,
@@ -323,8 +318,6 @@ def download_attachments(survey_entries_file,
                         attachment_columns,
                         username,
                         password,
-                        servername=None,
-                        formid=None,
                         dir_path=None,
                         dir_box_id=None,
                         s3_bucket=None,
@@ -349,8 +342,6 @@ def download_attachments(survey_entries_file,
                                 username=username,
                                 password=password,
                                 survey_entries_file=survey_entries_file,
-                                servername=servername,
-                                formid=formid,
                                 dir_path=dir_path,
                                 dir_box_id=dir_box_id,
                                 encryption_key=encryption_key)

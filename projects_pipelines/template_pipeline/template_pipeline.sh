@@ -161,14 +161,14 @@ do
   fi
 done
 
-# #Download attachments (also to box path, box directly or aws)
-# if ! [ -z "${columns_with_attachments}" ];
-# then
-#
-#   #Create key where to save media files in s3 bucket
-#   s3_bucket_path_media="${outputs_folder}/media"
-#
-#   python3 ../../surveycto/download_attachments.py --survey_file "${file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
-#   echo "Attachements downloaded"
-#   echo ''
-# fi
+#Download attachments (also to box path, box directly or aws)
+if ! [ -z "${columns_with_attachments}" ];
+then
+
+  #Create key where to save media files in s3 bucket
+  s3_bucket_path_media="${outputs_folder}/media"
+
+  python3 ../../surveycto/download_attachments.py --survey_file "${file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
+  echo "Attachements downloaded"
+  echo ''
+fi

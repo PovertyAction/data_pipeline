@@ -115,4 +115,4 @@ def get_box_client(authentication_method):
 
 if __name__ == '__main__':
 
-    print(check_file_exists_in_folder(auth_method='jwt', box_folder_id='141540328939', file_name='AA_5c6ca838-4a3c-459f-a4c3-5f2df9665d89_telefono1.m4a'))
+    print(check_file_exists_in_folder(auth_method='jwt', box_folder_id='139653613903', file_name='TA_5c6ca838-4a3c-459f-a4c3-5f2df9665d89.csv'))
