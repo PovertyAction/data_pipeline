@@ -6,11 +6,12 @@ How to run:
 
 ./template_pipeline.sh \
 --server bdmaskrct \
+--download_wide_csv True \
+--download_wide_json True \
 --form_id mask_monitoring_form_bn \
 --start_timestamp 0 \
 --username "mali@poverty-action.org" \
 --password "pass!" \
---transform_to_csv "True" \
 --box_path "./box_path_simulation/" \
 --box_folder_id 139653613903 \
 --s3_bucket mask-monitoring-project \
@@ -33,26 +34,13 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-#> Should do some arguments validations here, like checking certain arguments are not empy
-
-#Build url to download survey entries
-url="https://${server}.surveycto.com/api/v2/forms/data/wide/json/${form_id}?date=${start_timestamp}"
-echo "Url to call: ${url}"
-echo ''
+#> Pending: Should do some arguments validations here, like checking certain arguments are not empy and that others are valid
 
 #Build local folder for file
 outputs_folder="data/${server}/${form_id}"
 mkdir -p ${outputs_folder}
 echo "Will save outputs in: ${outputs_folder}"
 echo ''
-
-#Build json file path
-timestamp_now=$(date +"%s")
-file_name="${server}_${form_id}_${start_timestamp}_${timestamp_now}"
-json_file_path="${outputs_folder}/${file_name}.json"
-echo "json file path: ${json_file_path}"
-echo ''
-
 
 #Download surveycto server key
 if ! [ -z "${server_key_file_id}" ];
@@ -63,42 +51,78 @@ else
   server_key=''
 fi
 
+#1st argument is csv or json
+download_survey_entries()
+{
+  format=$1
 
-#Download main database. Check if server key was provided
-if [ -z "${server_key_file_id}" ];
-then
-  curl -u "${username}:${password}" -o ${json_file_path} ${url}
-else
-  echo 'Using private key in curl request'
-  curl -u "${username}:${password}" -F 'private_key=@"'"$server_key"'"' -o ${json_file_path} ${url}
-fi
-echo "${json_file_path} downloaded"
-echo 'Fist 100 chars:'
-head -c 100 ${json_file_path}
-echo ''
-
-#Check if there was an error in the download process, if yes, stop
-#Identify error with "{"error" in the first chars of json_file_path
-first_8_chr=$(head -c 8 ${json_file_path})
-error_str='{"error"'
-if [ "$first_8_chr" = "$error_str" ]; then
-  echo "Error when downloading database, finishing pipeline"
-  rm ${json_file_path}
-  exit 0
-fi
-
-#Transform to .csv.
-if [ "$transform_to_csv" == "True" ];
-then
-  csv_file_path="${outputs_folder}/${file_name}.csv"
-  python3 ../../files_transformations/json_to_csv_parser.py "${json_file_path}" "${csv_file_path}"
-  echo "${csv_file_path} created"
+  #Build url to download survey entries
+  if [ "$format" == "json" ];
+  then
+    url="https://${server}.surveycto.com/api/v2/forms/data/wide/json/${form_id}?date=${start_timestamp}"
+  elif [ "$format" == "csv" ];
+  then
+    url="https://${server}.surveycto.com/api/v1/forms/data/wide/csv/${form_id}?date=${start_timestamp}"
+  fi
+  echo "Url to call: ${url}"
   echo ''
 
-  FILES_TO_UPLOAD=$(echo "$json_file_path $csv_file_path")
-else
-  FILES_TO_UPLOAD=$(echo "$json_file_path")
+  #Build file path
+  timestamp_now=$(date +"%s")
+  file_name="${server}_${form_id}_${start_timestamp}_${timestamp_now}.${format}"
+  file_path="${outputs_folder}/${file_name}"
+  echo "file path: ${file_path}"
+  echo ''
+
+  #Download main database. Check if server key was provided
+  if ! [ "$server_key" == "" ];
+  then
+    curl -u "${username}:${password}" -F 'private_key=@"'"$server_key"'"' -o ${file_path} ${url}
+  else
+    curl -u "${username}:${password}" -o ${file_path} ${url}
+  fi
+
+  #Prints
+  echo "${file_path} downloaded"
+  echo 'Fist 100 chars:'
+  head -c 100 ${file_path}
+  echo ''
+
+  #Check if there was an error in the download process, if yes, stop
+  first_8_chr=$(head -c 8 ${file_path})
+
+  #Build string with error
+  error_str='{"error"'
+  if [ "$first_8_chr" = "$error_str" ];
+  then
+    echo 'Error when downloading database, finishing pipeline'
+    rm ${file_path}
+    exit 0
+  fi
+
+  return ${file_path}
+}
+
+#Download survey entries
+if [ "$download_wide_csv" == "True" ];
+then
+    file_path= download_survey_entries csv $server_key
+    FILES_TO_UPLOAD=$(echo "$file_path")
 fi
+
+if [ "$download_wide_json" == "True" ];
+then
+    file_path= download_survey_entries json $server_key
+
+    #Transform to .csv.
+    csv_file_path= python3 ../../files_transformations/json_to_csv_parser.py "${file_path}"
+    echo "csv created"
+    echo ''
+    FILES_TO_UPLOAD=$(echo "$file_path $csv_file_path")
+else
+    echo 'not downloading json'
+fi
+
 echo "FILES_TO_UPLOAD: ${FILES_TO_UPLOAD}"
 echo ''
 
@@ -131,8 +155,6 @@ do
   fi
 done
 
-json_file_path="data/hfslatam/hfslatam_560_Chile/hfslatam_hfslatam_560_Chile_0_1626731876.json"
-
 #Download attachments (also to box path, box directly or aws)
 if ! [ -z "${columns_with_attachments}" ];
 then
@@ -140,7 +162,7 @@ then
   #Create key where to save media files in s3 bucket
   s3_bucket_path_media="${outputs_folder}/media"
 
-  python3 ../../surveycto/download_attachments.py --survey_file "${json_file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
+  python3 ../../surveycto/download_attachments.py --survey_file "${file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
   echo "Attachements downloaded"
   echo ''
 fi

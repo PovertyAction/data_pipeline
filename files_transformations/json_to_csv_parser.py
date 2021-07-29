@@ -106,11 +106,14 @@ def parse_json_to_csv(json_file, csv_file):
     json_keys = get_json_keys(json_file)
     print(f'Got json_keys, its {len(json_keys)} of them!')
     parse_json_to_csv_with_keys(json_file, json_keys, csv_file)
+    return csv_file
 
 if __name__ == '__main__':
     json_file = sys.argv[1]
-    csv_file = sys.argv[2]
+
     if not os.path.exists(json_file):
         print(f'{json_file} does not exist')
     else:
+        json_file_basename, ext = os.path.splitext(json_file)
+        csv_file = json_file_basename + '.csv'
         parse_json_to_csv(json_file, csv_file)
