@@ -6,11 +6,12 @@ How to run:
 
 ./template_pipeline.sh \
 --server bdmaskrct \
---download_wide_csv True \
---download_wide_json False \
+--download_wide_csv False \
+--download_wide_json True \
+--transform_json_to_csv True \
 --form_id mask_monitoring_form_bn \
 --start_timestamp 0 \
---username "mali@poverty-action.org" \
+--username "researchsupport@poverty-action.org" \
 --password "pass!" \
 --box_path "./box_path_simulation/" \
 --box_folder_id 139653613903 \
@@ -47,6 +48,7 @@ if ! [ -z "${server_key_file_id}" ];
 then
   server_key="${outputs_folder}/server_key.pem"
   python3 ../../box/download_from_box.py "${server_key_file_id}" "${server_key}"
+  echo 'Servey key downloaded'
 else
   server_key=''
 fi
@@ -121,16 +123,18 @@ then
       FILES_DOWNLOADED+=$(echo " $file_path")
     fi
 
-    #Transform to csv deprecated, given that users can download .csv directly
-    # #Transform to .csv.
-    # if [ "$transform_json_to_csv" == "True" ];
-    # then
-    #   csv_file_path= python3 ../../files_transformations/json_to_csv_parser.py "${file_path}"
-    #   echo "csv created"
-    #   echo ''
-    # fi
+    #Transform to .csv.
+    if [ "$transform_json_to_csv" == "True" ];
+    then
+      parsed_csv_file_path="$(echo "$file_path" | cut -f 1 -d '.')_parsed.csv"
+      python3 ../../files_transformations/json_to_csv_parser.py "${file_path}" "${parsed_csv_file_path}"
+      echo "Parsed csv created"
+      echo "${parsed_csv_file_path}"
+      FILES_DOWNLOADED+=$(echo " $parsed_csv_file_path")
+      echo ''
+    fi
 fi
-echo 'Survey entried downloaded'
+echo 'Survey entries downloaded'
 echo "$FILES_DOWNLOADED"
 
 #Upload every output file to box drive, box cloud or aws
