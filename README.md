@@ -1,32 +1,35 @@
 # Introduction
 
-This repo provides general scripts to automatize data processing. In particular, we provide modules to:
+This repo provides general scripts to automatize data processing for IPA research projects. In particular, we provide modules to:
 
 * Download data using SurveyCTO API
 * Cleaning and transforming data
 * Push data to Box using Box API
 * Push data to AWS S3 Buckets
 
-In order to run this modules in the correct order, this repo also provides `.sh` template files (reffered to as pipelines) that call the different modules according to projects needs. `.sh` are also simple to schedule in a server machine so that they run periodically.
+In order to run this modules in the correct order, this repo provides `.sh` template files (referred to as pipelines) that call the different modules according to projects needs. `.sh` are also simple to schedule in a server machine so that they run periodically.
 
 ## Setting up your pipeline
 
-Check out `projects_pipelines\template_pipeline\template_pipeline.sh` to start your new pipeline and decide what to include. You can also check other pipelines under the `projects_pipelines` to look for other examples.
+Run `projects_pipelines\template_pipeline\template_pipeline.sh` to run a pipeline for your project. If you need to modify it, create a copy of the `template_pipeline` folder and edit the `.sh` file according to your needs. For example of other pipelines used in the past, you can check pipelines under the `projects_pipelines` folder.
 
 ### Setup needed
 
-Surveycto server must be shared with `researchsupport@poverty-action.org`, and box folders where data will be kept must be shared with `ipa_box_service_account@poverty-action.org`
+Surveycto server must be shared with `researchsupport@poverty-action.org`, and box folders IDS where data will be kept must be shared with `ipa_box_service_account@poverty-action.org`. You must also share box files IDs for other input files.
 
 ### Inputs needed to run your pipeline
 
 * server name
-* form(s) name(s)
-* surveycto username and password
-* destiny where to save files (either box drive path, box folder id, and/or aws bucket)
-* column names that have attachments (case we want to download attachments too)
-* server key box file id
+* form ID(s)
+* list of form fields that have media files (ex: text_audit, audio_audit, etc.). If there are multiple forms, specify fields for each form ID
+* Box folder ID of the Box folder where the raw csv of survey responses should be sent
+* Box folder ID where media files should be sent
+* Box file ID of the SurveyCTO encryption key saved in Box
+* Box file ID of xlsform
+* start date of data collection
+* frequency/time of data downloads
 
-### How to run periodically
+### How to schedule the pipeline
 
 Setup [cron](https://opensource.com/article/17/11/how-use-cron-linux) to run your `.sh` pipeline as periodically as you want.
 
@@ -36,54 +39,66 @@ For example, run
 crontab -e
 
 #Write down in the end of the crontab file the following line:
-0 0 * * * /home/ubuntu/data-pipeline/projects-pipeline/your_project/your_project_pipeline.sh >> /home/ubuntu/data-pipeline/projects-pipeline/your_project/your_project_pipeline_log.txt
+--server yourserver \
+0 0 * * * /home/ubuntu/data-pipeline/projects-pipeline/template-pipeline/template_pipeline.sh \
+--download_wide_csv True_or_False \
+--download_wide_json True_or_False \
+--transform_json_to_csv True_or_False \
+--form_id yourform \
+--start_timestamp 0 \
+--username "username@poverty-action.org" \
+--password "password_here" \
+--box_folder_id 111111111111 \
+--media_box_folder_id 111111111111 \
+--s3_bucket grds-data-warehouse \
+--columns_with_attachments "colA,colB" \
+--server_key_file_id "824680196213" >> /home/ubuntu/data-pipeline/projects-pipeline/your_project/your_project_pipeline_log.txt
 ```
-You can check what has crontab run with:
+
+The "0 0 * * *" indicates that the script should be run by crontab every night. Check http://www.cronmaker.com/ for examples.
+
+Remember that crontab works with absolute routes for files.
+
+You can check what crontab has run with:
 ```
 tail /var/log/syslog
 ```
-Remember to use absolute routes
 
 ### A note on .sh pipeline files created in windows
 
-After creating `.sh` files in windows, run the command `dos2unix your_pipeline.sh` to transform them so they run on linux machines.
+If you are creating the `.sh` files on Windows, run the command `dos2unix your_pipeline.sh` to transform them so they can run on Linux machines.
 
 Also remember running `chmod +x pipeline.sh` to be able to run it as an executable.
 
-## A note on encryption
-
-If you are pushing data to Box directly or AWS, the data will not pass through Boxcryptor and hence will not be encrypted. It is research teams responsibility to later encrypt data.
-
-## A note on size of data download
+## Why use a .sh file instead of a python file?
 
 Importantly, you will notice that our pipeline uses the `curl` command to download data. This is preferred over other options that download data using `python`, `stata` or others, given that if data is too big, these programs will run out of memory.
 
+## Encryption
 
+The pipeline pushes unencrypted data to Box and AWS. It is project teams responsibility to later encrypt the files.
 
+For that, we recommend the following step-by-step:
 
-<!-- # Setting up Lightsail VM
+1. Encrypt the empty folder where files will be saved using Boxcryptor.
+2. Every day, after files have been pushed to Box and synced to your computer using Box Drive, select those files that are unencrypted and encrypt them using Boxcryptor. Repeat this step however frequently you want, ideally daily. It's important you encrypt the files, not the folder (which should have already been encrypted in step 1)
 
-An alternative is to set up pipelines that download data directly to boxcryptor folders. For that, you might want to set up a Lightsail VM. More on ## Lightsail section
+### Possible extension of pipeline: Automatic encryption
 
-1. Launch AWS Lightsail VM
-2. Install boxcryptor
+Set up an AWS Lightsail VM to encrypt files once they are pushed to Box. The VM must hence have Box Drive and Boxcryptor installed. You can use Boxcryptor command line (run with bc.cmd) to encrypt the files (use the `encryption --files path_to_file` command to encrypt). The VM could be set up to run every night, get the list of unencrypted files in the given Box Drive folder, and encrypt them.
+
+Setup:
+
+1. Install boxcryptor
 
 Invoke-WebRequest -Uri https://www.boxcryptor.com/l/download-windows -OutFile Boxcryptor.msi
 
-3. Install box drive
+2. Install box drive
 
 Invoke-WebRequest -Uri https://e3.boxcdn.net/box-installers/desktop/releases/win/Box-x64.msi -OutFile Box-x64.msi
 
-4. Install python
+3. Log in to both with credentials that have access to data and encryption permissions (probably ipa_box_service_account@poverty-action.org)
 
-Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.9.4/python-3.9.4-amd64.exe -OutFile python-3.9.4-amd64.exe
+4. Create a script that encrypts every file in the folder
 
-5. Install git
-
-Invoke-WebRequest -Uri https://github.com/git-for-windows/git/releases/download/v2.31.1.windows.1/Git-2.31.1-64-bit.exe -OutFile Git-2.31.1-64-bit.exe
-
-6. Clone this repo
-
-git clone https://github.com/PovertyAction/surveycto_data_download.git
-
-7. Install dependencies (requirements.txt) -->
+5. Schedule the script to run every night
