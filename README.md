@@ -15,7 +15,7 @@ Run `projects_pipelines\template_pipeline\template_pipeline.sh` to run a pipelin
 
 ### Setup needed
 
-Surveycto server must be shared with `researchsupport@poverty-action.org`, and box folders IDS where data will be kept must be shared with `ipa_box_service_account@poverty-action.org`. You must also share box files IDs for other input files.
+Surveycto server must be shared with `ipa_box_service_account@poverty-action.org`, and box folders IDS where data will be kept must be shared with `ipa_box_service_account@poverty-action.org`. You must also share box files IDs for other input files.
 
 ### Inputs needed to run your pipeline
 
@@ -28,6 +28,43 @@ Surveycto server must be shared with `researchsupport@poverty-action.org`, and b
 * Box file ID of xlsform
 * start date of data collection
 * frequency/time of data downloads
+
+### Set up your ec2 instance
+
+1. Launch ubuntu instance from aws console
+
+2. Log into instance
+
+`ssh -i /path_to_ec2_pem_key.pem ubuntu@your_instance_public_dns`
+
+3. Clone repo
+
+`git clone url_to_data_pipeline_repo`
+
+4. Inside data_pipeline folder, install dependencies in a virtual environment
+
+Install python3-venv [Only once]
+`sudo apt-get install python3-venv`
+
+Create virtual env [Only once]
+`python3 -m venv venv`
+
+Activate virtual env
+`source venv/bin/activate`
+
+Install dependencies
+`pip install -r requirements.txt`
+
+<!--
+ADD this once task DM-116 https://ipa-grds.atlassian.net/jira/software/c/projects/DM/boards/10/roadmap?selectedIssue=DM-116 is ready
+
+5. Copy surveycto server key to pipeline folder in ec2 instance
+
+`scp -i /path_to_ec2_pem_key.pem /path/to/key/key.pem ubuntu@your_instance_public_dns:~/data_pipeline/projects_pipeline/template_pipeline/.` -->
+
+
+5. Set up crontab to run pipeline every night, according to user inputs in the form when they signed in to run the pipeline
+
 
 ### How to schedule the pipeline
 
