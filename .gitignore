@@ -1,0 +1,7 @@
+credentials/*
+__pycache__/*
+*.pem
+*.dta
+*.csv
+*.xls*
+*.json
