@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/env bash
+
+source "/home/ubuntu/data_pipeline/venv/bin/activate"
 
 : '
 
@@ -38,7 +40,7 @@ done
 #> Pending: Should do some arguments validations here, like checking certain arguments are not empy and that others are valid
 
 #Build local folder for file
-outputs_folder="data/${server}/${form_id}"
+outputs_folder="/home/ubuntu/data_pipeline/projects_pipelines/IPA_COL_iso2_midline/data/${server}/${form_id}"
 mkdir -p ${outputs_folder}
 echo "Will save outputs in: ${outputs_folder}"
 echo ''
@@ -47,10 +49,11 @@ echo ''
 if ! [ -z "${server_key_file_id}" ];
 then
   server_key="${outputs_folder}/server_key.pem"
-  python3 ../../box/download_from_box.py "${server_key_file_id}" "${server_key}"
-  echo 'Survey key downloaded'
+  python3 /home/ubuntu/data_pipeline/box/download_from_box.py "${server_key_file_id}" "${server_key}"
+  echo 'Servey key downloaded'
 else
-  server_key=''
+  server_key="${outputs_folder}/server_key.pem"
+  echo "Will use server_key.pem for data download"
 fi
 
 #1st argument is csv or json
@@ -64,7 +67,7 @@ download_survey_entries()
     url="https://${server}.surveycto.com/api/v2/forms/data/wide/json/${form_id}?date=${start_timestamp}"
   elif [ "$format" == "csv" ];
   then
-    url="https://${server}.surveycto.com/api/v1/forms/data/wide/csv/${form_id}?date=${start_timestamp}"
+    url="https://${server}.surveycto.com/api/v1/forms/data/wide/csv/${form_id}"
   fi
   echo "Url to call: ${url}"
   echo ''
@@ -79,7 +82,7 @@ download_survey_entries()
   #Download main database. Check if server key was provided
   if ! [ "$server_key" == "" ];
   then
-    curl -u "${username}:${password}" -F 'private_key=@"'"~/data_pipeline/projects_pipelines/IPA_COL_iso2_midline/server_key.pem"'"' -o ${file_path} ${url}
+    curl -u "${username}:${password}" -F 'private_key=@"'"$server_key"'"' -o ${file_path} ${url}
   else
     curl -u "${username}:${password}" -o ${file_path} ${url}
   fi
@@ -127,7 +130,7 @@ then
     if [ "$transform_json_to_csv" == "True" ];
     then
       parsed_csv_file_path="$(echo "$file_path" | cut -f 1 -d '.')_parsed.csv"
-      python3 ../../files_transformations/json_to_csv_parser.py "${file_path}" "${parsed_csv_file_path}"
+      python3 /home/ubuntu/data_pipeline/files_transformations/json_to_csv_parser.py "${file_path}" "${parsed_csv_file_path}"
       echo "Parsed csv created"
       echo "${parsed_csv_file_path}"
       FILES_DOWNLOADED+=$(echo " $parsed_csv_file_path")
@@ -151,7 +154,7 @@ do
   #Copy file to box
   if ! [ -z "${box_folder_id}" ];
   then
-    python3 ../../box/upload_to_box.py "${box_folder_id}" "${FILE}"
+    python3 /home/ubuntu/data_pipeline/box/upload_to_box.py "${box_folder_id}" "${FILE}"
     echo "${FILE} pushed to ${box_folder_id} in box.com"
     echo ''
   fi
@@ -159,7 +162,7 @@ do
   #Copy file to aws
   if ! [ -z "${s3_bucket}" ];
   then
-    python3 ../../aws/upload_to_s3.py "${FILE}" "${s3_bucket}"
+    python3 /home/ubuntu/data_pipeline/aws/upload_to_s3.py "${FILE}" "${s3_bucket}"
     echo "${FILE} pushed to aws ${s3_bucket} bucket"
     echo ''
   fi
@@ -172,7 +175,7 @@ then
   #Create key where to save media files in s3 bucket
   s3_bucket_path_media="${outputs_folder}/media"
 
-  python3 ../../surveycto/download_attachments.py --survey_file "${file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
+  python3 /home/ubuntu/data_pipeline/surveycto/download_attachments.py --survey_file "${file_path}" --attachment_columns "${columns_with_attachments}" --username "${username}" --password "${password}" --encryption_key "${server_key}" --dest_path "${media_box_path}" --dest_box_id "${media_box_folder_id}" --s3_bucket "${s3_bucket}" --s3_bucket_path_media "${s3_bucket_path_media}"
   echo "Attachements downloaded"
   echo ''
 fi
