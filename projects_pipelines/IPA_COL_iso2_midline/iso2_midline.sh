@@ -48,7 +48,7 @@ if ! [ -z "${server_key_file_id}" ];
 then
   server_key="${outputs_folder}/server_key.pem"
   python3 ../../box/download_from_box.py "${server_key_file_id}" "${server_key}"
-  echo 'Servey key downloaded'
+  echo 'Survey key downloaded'
 else
   server_key=''
 fi
