@@ -79,7 +79,7 @@ download_survey_entries()
   #Download main database. Check if server key was provided
   if ! [ "$server_key" == "" ];
   then
-    curl -u "${username}:${password}" -F 'private_key=@"'"$server_key"'"' -o ${file_path} ${url}
+    curl -u "${username}:${password}" -F 'private_key=@"'"~/data_pipeline/projects_pipelines/IPA_COL_iso2_midline/server_key.pem"'"' -o ${file_path} ${url}
   else
     curl -u "${username}:${password}" -o ${file_path} ${url}
   fi
