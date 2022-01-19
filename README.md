@@ -76,23 +76,22 @@ For example, run
 crontab -e
 
 #Write down in the end of the crontab file the following line:
+0 0 * * * source venv/bin/activate; \
+/home/ubuntu/data_pipeline/projects_pipelines/IPA_COL_iso2_midline/./iso2_midline.sh \
 --server yourserver \
-0 0 * * * /home/ubuntu/data-pipeline/projects-pipeline/template-pipeline/template_pipeline.sh \
---download_wide_csv True_or_False \
---download_wide_json True_or_False \
---transform_json_to_csv True_or_False \
---form_id yourform \
+--download_wide_csv False \
+--download_wide_json True \
+--transform_json_to_csv True \
+--form_id yourformid \
 --start_timestamp 0 \
 --username "username@poverty-action.org" \
 --password "password_here" \
---box_folder_id 111111111111 \
---media_box_folder_id 111111111111 \
---s3_bucket grds-data-warehouse \
---columns_with_attachments "colA,colB" \
---server_key_file_id "824680196213" >> /home/ubuntu/data-pipeline/projects-pipeline/your_project/your_project_pipeline_log.txt
+--box_folder_id 1111111111 \
+--columns_with_attachments "text_audit,pre_survey_audio" \
+--media_box_folder_id 2222222222222 >> /home/ubuntu/data-pipeline/projects-pipeline/your_project/your_project_pipeline_log.txt
 ```
 
-The "0 0 * * *" indicates that the script should be run by crontab every night. Check http://www.cronmaker.com/ for examples.
+The "0 0 * * *" indicates that the script should be run by crontab every night. Check https://crontab.guru/ for examples.
 
 Remember that crontab works with absolute routes for files.
 
