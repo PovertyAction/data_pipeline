@@ -1,9 +1,9 @@
 # Introduction
 
-This repo provides general scripts to automatize data processing for IPA research projects. In particular, we provide modules to:
+This repo provides general scripts to automate data processing for IPA research projects. In particular, we provide modules to:
 
 * Download data using SurveyCTO API
-* Cleaning and transforming data
+* Clean and transform data
 * Push data to Box using Box API
 * Push data to AWS S3 Buckets
 
