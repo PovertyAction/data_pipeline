@@ -140,7 +140,7 @@ Invoke-WebRequest -Uri https://e3.boxcdn.net/box-installers/desktop/releases/win
 5. Schedule the script to run every night
 
 
-### LICENSE
+### License
 
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
 
